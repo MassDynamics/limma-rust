@@ -21,6 +21,7 @@
 pub mod lowess;
 pub mod nmath;
 pub mod optim;
+pub mod quad;
 
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
