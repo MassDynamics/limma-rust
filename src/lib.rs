@@ -18,6 +18,8 @@
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
 //! - `camera`    `camera` parametric path (used by the enrichment job).
 
+pub mod contrasts;
+pub mod fit;
 pub mod linalg;
 pub mod linpack;
 pub mod lowess;

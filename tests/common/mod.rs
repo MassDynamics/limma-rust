@@ -23,6 +23,8 @@
 //! the floor on what any port can score here, and the reason every tolerance below is
 //! relative.
 
+pub mod matrix;
+
 use std::fmt;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};

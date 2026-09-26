@@ -242,7 +242,7 @@ impl Qr {
 
     /// Back-solve `R b = qty[0..rank]` (the `cb` branch of `dqrsl`).
     /// Coefficients are in *pivoted* order, length `rank`.
-    fn coef_pivoted(&self, qty: &[f64]) -> Result<Vec<f64>> {
+    pub(crate) fn coef_pivoted(&self, qty: &[f64]) -> Result<Vec<f64>> {
         let k = self.rank;
         let mut b: Vec<f64> = qty[..k].to_vec();
         for j in (0..k).rev() {
