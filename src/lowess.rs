@@ -825,6 +825,20 @@ pub fn loess_fit(
     span: f64,
     iterations: usize,
 ) -> Vec<f64> {
+    loess_fit_bounded(y, x, weights, span, iterations, 1e-5, 1e5)
+}
+
+/// [`loess_fit`] with explicit `min.weight` / `max.weight`, which `fitFDistUnequalDF1`
+/// sets to `1e-8` / `1e2`.
+pub fn loess_fit_bounded(
+    y: &[f64],
+    x: &[f64],
+    weights: Option<&[f64]>,
+    span: f64,
+    iterations: usize,
+    min_weight: f64,
+    max_weight: f64,
+) -> Vec<f64> {
     let n = y.len();
     assert_eq!(x.len(), n, "loessFit: y and x have different lengths");
     let mut fitted = vec![f64::NAN; n];
@@ -848,9 +862,6 @@ pub fn loess_fit(
         }
         return fitted;
     }
-
-    let min_weight = 1e-5;
-    let max_weight = 1e5;
 
     /* Check weights */
     let mut wobs: Option<Vec<f64>> = None;

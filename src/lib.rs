@@ -19,6 +19,7 @@
 //! - `camera`    `camera` parametric path (used by the enrichment job).
 
 pub mod contrasts;
+pub mod ebayes;
 pub mod fit;
 pub mod linalg;
 pub mod linpack;
@@ -27,6 +28,7 @@ pub mod nmath;
 pub mod optim;
 pub mod quad;
 pub mod splines;
+pub mod toptable;
 
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
