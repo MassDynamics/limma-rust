@@ -8,16 +8,17 @@
 //! Module map (filled in by the ordered forge cards, see `docs/cards.md`):
 //!
 //! - `nmath`     R's distribution functions and gamma family (`pt`, `qt`, `pf`, `qf`,
-//!               `pnorm`, `qnorm`, `pbeta`, `qbeta`, `pgamma`, `qgamma`, `pchisq`, `qchisq`,
-//!               `digamma`, `trigamma`) plus limma's `trigammaInverse`. Ported from R's
-//!               `src/nmath`, not from a generic stats crate: tails must match R within the
-//!               corpus tolerances.
+//!   `pnorm`, `qnorm`, `pbeta`, `qbeta`, `pgamma`, `qgamma`, `pchisq`, `qchisq`, `digamma`,
+//!   `trigamma`) plus limma's `trigammaInverse`. Ported from R's `src/nmath`, not from a
+//!   generic stats crate: tails must match R within the corpus tolerances.
 //! - `lowess`    line-for-line port of R's C `clowess` (used by `eBayes(trend=TRUE)`).
 //! - `lm`        `lmFit` / `lm.series` (QR via faer; NA-aware per-gene refits).
 //! - `contrasts` `contrasts.fit`, incl. the non-orthogonal cov/Cholesky route.
 //! - `ebayes`    `eBayes`, `squeezeVar`, `fitFDist`, `fitFDistRobustly`.
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
 //! - `camera`    `camera` parametric path (used by the enrichment job).
+
+pub mod nmath;
 
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
