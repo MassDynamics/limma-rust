@@ -31,6 +31,7 @@ pub mod toms708;
 pub use pgamma::{pchisq, pgamma, qchisq, qgamma};
 pub use qbeta::qbeta;
 pub use t::{dt, pt, qt};
+pub use f::{df, pf, qf};
 pub use gamma::{dgamma, digamma, gammafn, lbeta, lgammafn, logmdigamma, trigamma, trigamma_inverse};
 pub use pbeta::pbeta;
 pub use pnorm::{dnorm, pnorm, qnorm};
