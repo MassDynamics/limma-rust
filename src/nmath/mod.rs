@@ -28,3 +28,4 @@ pub mod pnorm;
 pub mod qbeta;
 pub mod t;
 pub mod toms708;
+pub use pnorm::{dnorm, pnorm, qnorm};
