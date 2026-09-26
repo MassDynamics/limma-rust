@@ -11,11 +11,6 @@
 //! - `consts` the `M_*` constants `nmath.h` pulls in from `Rmath.h`.
 //! - `dpq`    the `p`/`q` helpers of `dpq.h`, plus `nmath.h`'s `R_forceint`.
 
-// R's private headers land a card ahead of the functions that call them, so the whole of
-// `dpq` and most of `consts` has no caller yet. Delete this once the ports are in — after
-// that, an unused helper here is a real finding.
-#![allow(dead_code, unused_imports, unused_macros)]
-
 pub(crate) mod arith;
 pub(crate) mod consts;
 pub(crate) mod dpq;

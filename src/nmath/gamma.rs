@@ -1283,11 +1283,17 @@ pub(crate) fn lgamma1p(a: f64) -> f64 {
 } /* lgamma1p */
 
 /// `pgamma.c: logspace_add` — `log(exp(logx) + exp(logy))` without overflow.
+///
+/// No caller yet: `pgamma`'s log-scale tails are out of scope for the limma port. Kept
+/// with its unit test so the port stays line-for-line with `pgamma.c`.
+#[allow(dead_code)]
 pub(crate) fn logspace_add(logx: f64, logy: f64) -> f64 {
     fmax2(logx, logy) + (-(logx - logy).abs()).exp().ln_1p()
 }
 
-/// `pgamma.c: logspace_sub` — `log(exp(logx) - exp(logy))` without overflow.
+/// `pgamma.c: logspace_sub` — `log(exp(logx) - exp(logy))` without overflow. See
+/// `logspace_add` for why it has no caller.
+#[allow(dead_code)]
 pub(crate) fn logspace_sub(logx: f64, logy: f64) -> f64 {
     logx + r_log1_exp(logy - logx)
 }

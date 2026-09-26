@@ -5,9 +5,11 @@
 //! they are ordinary functions and the flags are passed explicitly, always last, so a call
 //! site still lines up with the C one argument for argument.
 //!
-//! The four macros that `return` from their caller — `R_Q_P01_check`,
-//! `R_Q_P01_boundaries`, `R_P_bounds_01`, `R_P_bounds_Inf_01` — stay macros, because the
-//! early return is the whole point of them.
+//! The three macros that `return` from their caller — `R_Q_P01_check`,
+//! `R_Q_P01_boundaries`, `R_P_bounds_01` — stay macros, because the early return is the
+//! whole point of them.
+//!
+//! Only the helpers with a caller in this crate are ported; an unused one is a finding.
 //!
 //! `dpq.h`'s density-only section (`give_log`, `R_D_fexp`, `R_D_rtxp`, `R_D_negInonint`,
 //! `R_D_nonint_check`) is not ported: no `d*` function is in scope for this crate.
@@ -81,15 +83,6 @@ pub(crate) fn r_d_cval(p: f64, lower_tail: bool) -> f64 {
     }
 }
 
-/// `R_D_val` — `x` in `pF(x, ..)`.
-pub(crate) fn r_d_val(x: f64, log_p: bool) -> f64 {
-    if log_p {
-        x.ln()
-    } else {
-        x
-    }
-}
-
 /// `R_D_qIv` — `p` in `qF(p, ..)`.
 pub(crate) fn r_d_qiv(p: f64, log_p: bool) -> f64 {
     if log_p {
@@ -117,15 +110,6 @@ pub(crate) fn r_d_log(p: f64, log_p: bool) -> f64 {
     }
 }
 
-/// `R_D_Clog` — `[log](1 - p)`.
-pub(crate) fn r_d_clog(p: f64, log_p: bool) -> f64 {
-    if log_p {
-        (-p).ln_1p()
-    } else {
-        0.5 - p + 0.5
-    }
-}
-
 /// `R_Log1_Exp` — `log(1 - exp(x))`, in a more stable form than `log1p(-exp(x))`.
 pub(crate) fn r_log1_exp(x: f64) -> f64 {
     if x > -M_LN2 {
@@ -141,24 +125,6 @@ pub(crate) fn r_d_lexp(x: f64, log_p: bool) -> f64 {
         r_log1_exp(x)
     } else {
         (-x).ln_1p()
-    }
-}
-
-/// `R_DT_val`.
-pub(crate) fn r_dt_val(x: f64, lower_tail: bool, log_p: bool) -> f64 {
-    if lower_tail {
-        r_d_val(x, log_p)
-    } else {
-        r_d_clog(x, log_p)
-    }
-}
-
-/// `R_DT_Cval`.
-pub(crate) fn r_dt_cval(x: f64, lower_tail: bool, log_p: bool) -> f64 {
-    if lower_tail {
-        r_d_clog(x, log_p)
-    } else {
-        r_d_val(x, log_p)
     }
 }
 
@@ -188,16 +154,6 @@ pub(crate) fn r_dt_civ(p: f64, lower_tail: bool, log_p: bool) -> f64 {
     }
 }
 
-/// `R_DT_exp` — `exp(x)`.
-pub(crate) fn r_dt_exp(x: f64, lower_tail: bool, log_p: bool) -> f64 {
-    r_d_exp(r_d_lval(x, lower_tail), log_p)
-}
-
-/// `R_DT_Cexp` — `exp(1 - x)`.
-pub(crate) fn r_dt_cexp(x: f64, lower_tail: bool, log_p: bool) -> f64 {
-    r_d_exp(r_d_cval(x, lower_tail), log_p)
-}
-
 /// `R_DT_log` — `log(p)` in `qF`.
 pub(crate) fn r_dt_log(p: f64, lower_tail: bool, log_p: bool) -> f64 {
     if lower_tail {
@@ -213,15 +169,6 @@ pub(crate) fn r_dt_clog(p: f64, lower_tail: bool, log_p: bool) -> f64 {
         r_d_lexp(p, log_p)
     } else {
         r_d_log(p, log_p)
-    }
-}
-
-/// `R_DT_Log` — `R_DT_log` for a caller that already knows `log_p` is true.
-pub(crate) fn r_dt_log_p(p: f64, lower_tail: bool) -> f64 {
-    if lower_tail {
-        p
-    } else {
-        r_log1_exp(p)
     }
 }
 
@@ -288,20 +235,7 @@ macro_rules! r_p_bounds_01 {
     };
 }
 
-/// `R_P_bounds_Inf_01(x)` — `r_p_bounds_01` for a support of `(-Inf, Inf)`.
-macro_rules! r_p_bounds_inf_01 {
-    ($x:expr, $lower_tail:expr, $log_p:expr) => {
-        if !$x.is_finite() {
-            if $x > 0.0 {
-                return $crate::nmath::dpq::r_dt_1($lower_tail, $log_p);
-            }
-            // x < 0
-            return $crate::nmath::dpq::r_dt_0($lower_tail, $log_p);
-        }
-    };
-}
-
-pub(crate) use {r_p_bounds_01, r_p_bounds_inf_01, r_q_p01_boundaries, r_q_p01_check};
+pub(crate) use {r_p_bounds_01, r_q_p01_boundaries, r_q_p01_check};
 
 #[cfg(test)]
 mod tests {
