@@ -28,4 +28,6 @@ pub mod pnorm;
 pub mod qbeta;
 pub mod t;
 pub mod toms708;
+pub use gamma::{dgamma, digamma, gammafn, lbeta, lgammafn, logmdigamma, trigamma, trigamma_inverse};
+pub use pbeta::pbeta;
 pub use pnorm::{dnorm, pnorm, qnorm};
