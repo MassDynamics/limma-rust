@@ -18,6 +18,7 @@
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
 //! - `camera`    `camera` parametric path (used by the enrichment job).
 
+pub mod lowess;
 pub mod nmath;
 
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");

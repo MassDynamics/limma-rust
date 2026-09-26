@@ -19,3 +19,12 @@
 pub(crate) mod arith;
 pub(crate) mod consts;
 pub(crate) mod dpq;
+
+pub mod f;
+pub mod gamma;
+pub mod pbeta;
+pub mod pgamma;
+pub mod pnorm;
+pub mod qbeta;
+pub mod t;
+pub mod toms708;
