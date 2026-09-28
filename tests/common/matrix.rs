@@ -2,10 +2,9 @@
 //! numeric columns; `NA` becomes `NaN`. Values are returned column-major so they drop
 //! straight into the crate's matrix slices.
 
-use std::env;
 use std::path::{Path, PathBuf};
 
-use super::CORPUS_ENV;
+use super::corpus_root;
 
 pub struct Matrix {
     pub file: String,
@@ -89,26 +88,12 @@ fn parse_cell(cell: &str) -> Option<f64> {
     }
 }
 
-/// `matrix/<case>/` under the corpus root, or `None` with the skip printed.
-pub fn matrix_dir(test: &str, case: &str) -> Option<PathBuf> {
-    let root = env::var_os(CORPUS_ENV).filter(|value| !value.is_empty());
-    let Some(root) = root.map(PathBuf::from) else {
-        println!("{test}: skipped, {CORPUS_ENV} is unset or empty");
-        return None;
-    };
-    if !root.is_dir() {
-        println!(
-            "{test}: skipped, {CORPUS_ENV}={} is not a directory",
-            root.display()
-        );
-        return None;
-    }
+/// `matrix/<case>/` under the corpus root. Always `Some`; the `Option` keeps the callers' early
+/// return.
+pub fn matrix_dir(_test: &str, case: &str) -> Option<PathBuf> {
+    let root = corpus_root();
     let dir = root.join("matrix").join(case);
-    assert!(
-        dir.is_dir(),
-        "{CORPUS_ENV}={} has no matrix/{case}/",
-        root.display()
-    );
+    assert!(dir.is_dir(), "{} has no matrix/{case}/", root.display());
     Some(dir)
 }
 

@@ -8,10 +8,9 @@
 //! comparator and the per-file error report — plus the checks on the harness itself. Each
 //! port's card adds its own `#[test]` here.
 //!
-//! Every test skips when `MD_GOLDEN_CORPUS_DIR` is unset or is not a directory: it prints why
-//! and passes, so CI does not need the corpus. That is the rule `tests/golden/conftest.py`
-//! applies on the Python side, where pytest can report a real skip; a Rust test cannot, so
-//! run with `--nocapture` to see which tests skipped and each file's max relative error:
+//! The tests read the small corpus tier committed at `tests/golden/corpus/` (all of `scalar/`
+//! and `matrix/`), or the full corpus when `MD_GOLDEN_CORPUS_DIR` points at it; see
+//! [`corpus_root`]. Nothing skips. Run with `--nocapture` to see each file's max relative error:
 //!
 //! ```text
 //! cargo test -p limma-core --test scalar_goldens -- --nocapture
@@ -95,30 +94,29 @@ pub const SCHEMA: [(&str, &[&str]); 18] = [
     ("trigamma_inverse.csv", &["x", "trigamma_inverse"]),
 ];
 
-/// The corpus `scalar/` directory, or `None` — with the skip printed — when
-/// `MD_GOLDEN_CORPUS_DIR` is unset, empty, or not a directory. Callers return on `None`.
-///
-/// A corpus root that *is* a directory but holds no `scalar/` is a misconfigured corpus
-/// rather than an absent one, so it panics instead of skipping.
-pub fn scalar_dir(test: &str) -> Option<PathBuf> {
-    let root = env::var_os(CORPUS_ENV).filter(|value| !value.is_empty());
-    let Some(root) = root.map(PathBuf::from) else {
-        println!("{test}: skipped, {CORPUS_ENV} is unset or empty");
-        return None;
-    };
-    if !root.is_dir() {
-        println!(
-            "{test}: skipped, {CORPUS_ENV}={} is not a directory",
-            root.display()
-        );
-        return None;
+/// The corpus root: `MD_GOLDEN_CORPUS_DIR` when set (the full corpus), otherwise the small tier
+/// committed at `tests/golden/corpus/`. A set variable that is not a directory panics rather
+/// than falling back, so a mistyped path cannot quietly shrink the test run.
+pub fn corpus_root() -> PathBuf {
+    match env::var_os(CORPUS_ENV).filter(|value| !value.is_empty()) {
+        Some(root) => {
+            let root = PathBuf::from(root);
+            assert!(
+                root.is_dir(),
+                "{CORPUS_ENV}={} is not a directory",
+                root.display()
+            );
+            root
+        }
+        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/golden/corpus"),
     }
+}
+
+/// The corpus `scalar/` directory. Always `Some`; the `Option` keeps the callers' early return.
+pub fn scalar_dir(_test: &str) -> Option<PathBuf> {
+    let root = corpus_root();
     let dir = root.join("scalar");
-    assert!(
-        dir.is_dir(),
-        "{CORPUS_ENV}={} has no scalar/ directory",
-        root.display()
-    );
+    assert!(dir.is_dir(), "{} has no scalar/ directory", root.display());
     Some(dir)
 }
 
