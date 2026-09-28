@@ -193,11 +193,7 @@ pub fn eigen_symmetric(a: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
     }
     let mut idx: Vec<usize> = (0..n).collect();
     let vals: Vec<f64> = (0..n).map(|i| m[i * n + i]).collect();
-    idx.sort_by(|&a, &b| {
-        vals[b]
-            .partial_cmp(&vals[a])
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
+    idx.sort_by(|&a, &b| cmp_nan_last(vals[b], vals[a]));
     let values: Vec<f64> = idx.iter().map(|&i| vals[i]).collect();
     let mut vectors = vec![0.0; n * n];
     for (newj, &oldj) in idx.iter().enumerate() {
@@ -220,9 +216,20 @@ pub fn is_fullrank(x: &[f64], n: usize, p: usize) -> bool {
 // R vector helpers
 // ---------------------------------------------------------------------------
 
+/// Ascending order with `NaN` last. Agrees with `partial_cmp` on non-`NaN` values (so
+/// `-0.0 == 0.0`, unlike `total_cmp`) and is a total order, so sorting never panics.
+pub fn cmp_nan_last(a: f64, b: f64) -> std::cmp::Ordering {
+    match (a.is_nan(), b.is_nan()) {
+        (true, true) => std::cmp::Ordering::Equal,
+        (true, false) => std::cmp::Ordering::Greater,
+        (false, true) => std::cmp::Ordering::Less,
+        _ => a.partial_cmp(&b).unwrap_or(std::cmp::Ordering::Equal),
+    }
+}
+
 fn sorted(x: &[f64]) -> Vec<f64> {
     let mut s = x.to_vec();
-    s.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    s.sort_by(|a, b| cmp_nan_last(*a, *b));
     s
 }
 
@@ -304,7 +311,7 @@ pub fn mean(x: &[f64]) -> f64 {
 pub fn rank_average(x: &[f64]) -> Vec<f64> {
     let n = x.len();
     let mut idx: Vec<usize> = (0..n).collect();
-    idx.sort_by(|&a, &b| x[a].partial_cmp(&x[b]).unwrap());
+    idx.sort_by(|&a, &b| cmp_nan_last(x[a], x[b]));
     let mut r = vec![0.0; n];
     let mut i = 0;
     while i < n {
@@ -347,7 +354,7 @@ pub fn p_adjust_bh(p: &[f64]) -> Vec<f64> {
     }
     // order(p, decreasing = TRUE)
     let mut o = idx.clone();
-    o.sort_by(|&a, &b| p[b].partial_cmp(&p[a]).unwrap());
+    o.sort_by(|&a, &b| cmp_nan_last(p[b], p[a]));
     let mut running = f64::INFINITY;
     for (k, &i) in o.iter().enumerate() {
         let rank = (n - k) as f64;
@@ -367,7 +374,7 @@ pub fn approx_rule2_ties_mean(x: &[f64], y: &[f64], xout: &[f64]) -> Vec<f64> {
     let mut idx: Vec<usize> = (0..x.len())
         .filter(|&i| x[i].is_finite() && y[i].is_finite())
         .collect();
-    idx.sort_by(|&a, &b| x[a].partial_cmp(&x[b]).unwrap());
+    idx.sort_by(|&a, &b| cmp_nan_last(x[a], x[b]));
     let mut ux: Vec<f64> = Vec::new();
     let mut uy: Vec<f64> = Vec::new();
     let mut i = 0;
@@ -465,5 +472,39 @@ mod tests {
             &[0.0, 1.5, 2.0, 2.5, 9.0],
         );
         assert_eq!(a, vec![1.0, 2.0, 3.0, 4.0, 5.0]);
+    }
+
+    #[test]
+    fn cmp_nan_last_matches_partial_cmp_on_non_nan() {
+        let vals = [
+            f64::NEG_INFINITY,
+            -2.5,
+            -0.0,
+            0.0,
+            1e-300,
+            3.0,
+            3.0,
+            f64::INFINITY,
+        ];
+        for &a in &vals {
+            for &b in &vals {
+                assert_eq!(cmp_nan_last(a, b), a.partial_cmp(&b).unwrap(), "{a} vs {b}");
+            }
+        }
+        // Stable sort: equal keys (incl. -0.0 == 0.0) keep their input order, as with partial_cmp.
+        let x = [3.0, 0.0, -0.0, -2.5, 3.0, 1e-300];
+        let mut by_new: Vec<usize> = (0..x.len()).collect();
+        let mut by_old = by_new.clone();
+        by_new.sort_by(|&i, &j| cmp_nan_last(x[i], x[j]));
+        by_old.sort_by(|&i, &j| x[i].partial_cmp(&x[j]).unwrap());
+        assert_eq!(by_new, by_old);
+    }
+
+    #[test]
+    fn cmp_nan_last_puts_nan_last() {
+        let mut x = vec![f64::NAN, 2.0, f64::NEG_INFINITY, f64::NAN, -1.0];
+        x.sort_by(|a, b| cmp_nan_last(*a, *b));
+        assert_eq!(&x[..3], &[f64::NEG_INFINITY, -1.0, 2.0]);
+        assert!(x[3].is_nan() && x[4].is_nan());
     }
 }

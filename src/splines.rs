@@ -5,7 +5,7 @@
 
 #![allow(clippy::needless_range_loop)]
 
-use crate::linalg::quantile7;
+use crate::linalg::{cmp_nan_last, quantile7};
 use crate::linpack::qr_decompose;
 use crate::{LimmaError, Result};
 
@@ -117,7 +117,7 @@ pub fn spline_design(knots: &[f64], x: &[f64], derivs: &[usize]) -> Result<Vec<f
         )));
     }
     let mut kn = knots.to_vec();
-    kn.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    kn.sort_by(|a, b| cmp_nan_last(*a, *b));
     let degree = ORD - 1;
     for &xi in x {
         if xi < kn[ORD - 1] || kn[nk - degree - 1] < xi {
@@ -287,7 +287,7 @@ fn ns_with_knots(
         aknots.push(boundary[1]);
     }
     aknots.extend_from_slice(knots);
-    aknots.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    aknots.sort_by(|a, b| cmp_nan_last(*a, *b));
     let ncoef = n_iknots + 4;
 
     let mut basis = vec![0.0; nx * ncoef];

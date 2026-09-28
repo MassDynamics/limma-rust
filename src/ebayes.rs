@@ -10,8 +10,8 @@
 
 use crate::fit::{MArrayLm, LM_TOL};
 use crate::linalg::{
-    cov2cor, cummax, eigen_symmetric, is_fullrank, mean, mean_trim, median, p_adjust_bh, quantile7,
-    rank_average,
+    cmp_nan_last, cov2cor, cummax, eigen_symmetric, is_fullrank, mean, mean_trim, median,
+    p_adjust_bh, quantile7, rank_average,
 };
 use crate::linpack::lm_fit;
 use crate::lowess::{loess_fit, loess_fit_bounded};
@@ -57,7 +57,7 @@ pub fn order_desc(x: &[f64]) -> Vec<usize> {
 
 fn n_unique(x: &[f64]) -> usize {
     let mut s: Vec<f64> = x.to_vec();
-    s.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    s.sort_by(|a, b| cmp_nan_last(*a, *b));
     s.dedup();
     s.len()
 }
