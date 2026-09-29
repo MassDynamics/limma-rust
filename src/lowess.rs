@@ -773,8 +773,9 @@ pub fn weighted_lowess_r(
 
 /// `lm.wfit(cbind(1, x), y, w)$fitted` for the two-column intercept + slope design: the
 /// weighted least-squares line, or the weighted mean when `x` has no spread. Algebraically
-/// what R's Householder QR returns, not a port of `dqrls`; reached only by `loessFit` when
-/// fewer than `4 + 1/span` weighted observations remain, which no `fitFDistRobustly` call does.
+/// what R's Householder QR returns, not a port of `dqrls`, so it agrees with R to rounding only.
+/// `loessFit` takes this branch when fewer than `4 + 1/span` weighted observations remain, e.g.
+/// `fitFDistUnequalDF1` with a trend covariate and only three or four informative features.
 fn lm_wfit_line(x: &[f64], y: &[f64], w: &[f64]) -> Vec<f64> {
     let mut sw = 0.;
     let mut swx = 0.;

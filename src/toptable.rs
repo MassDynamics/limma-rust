@@ -41,21 +41,18 @@ pub fn top_table_t(
     }
     let off = coef * ngenes;
     let p: &[f64] = &eb.p_value[off..off + ngenes];
-    let adj = p_adjust_bh(p);
-    let alpha = (1.0 + confint) / 2.0;
+    let (adj, margin) = adj_p_and_ci_margin(fit, eb, coef, confint);
     let b: &[f64] = &eb.lods[off..off + ngenes];
     let o = order_desc(b);
     let mut rows = Vec::with_capacity(ngenes);
     for &g in &o {
         let k = off + g;
         let log_fc = fit.coefficients[k];
-        let margin =
-            eb.s2_post[g].sqrt() * fit.stdev_unscaled[k] * qt(alpha, eb.df_total[g], true, false);
         rows.push(TopTableRow {
             gene: g,
             log_fc,
-            ci_l: log_fc - margin,
-            ci_r: log_fc + margin,
+            ci_l: log_fc - margin[g],
+            ci_r: log_fc + margin[g],
             ave_expr: fit.amean[g],
             t: eb.t[k],
             p_value: p[g],
@@ -64,6 +61,29 @@ pub fn top_table_t(
         });
     }
     Ok(rows)
+}
+
+/// BH-adjusted p-values and CI half-widths for one coefficient (0-based), in gene order:
+/// `p.adjust(p, "BH")` and `sqrt(s2.post) * stdev.unscaled * qt((1 + confint) / 2, df.total)`
+/// (`toptable.R:224-229`). Shared by `top_table_t` and the Python binding.
+pub fn adj_p_and_ci_margin(
+    fit: &MArrayLm,
+    eb: &EBayes,
+    coef: usize,
+    confint: f64,
+) -> (Vec<f64>, Vec<f64>) {
+    let ngenes = fit.ngenes;
+    let off = coef * ngenes;
+    let adj = p_adjust_bh(&eb.p_value[off..off + ngenes]);
+    let alpha = (1.0 + confint) / 2.0;
+    let margin = (0..ngenes)
+        .map(|g| {
+            eb.s2_post[g].sqrt()
+                * fit.stdev_unscaled[off + g]
+                * qt(alpha, eb.df_total[g], true, false)
+        })
+        .collect();
+    (adj, margin)
 }
 
 /// One row of `topTable(fit, number = Inf)` (the F-test table).

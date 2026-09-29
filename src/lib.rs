@@ -12,7 +12,8 @@
 //!   `trigamma`) plus limma's `trigammaInverse`. Ported from R's `src/nmath`, not from a
 //!   generic stats crate: tails must match R within the corpus tolerances.
 //! - `lowess`    line-for-line port of R's C `clowess` (used by `eBayes(trend=TRUE)`).
-//! - `lm`        `lmFit` / `lm.series` (QR via faer; NA-aware per-gene refits).
+//! - `lm`        `lmFit` / `lm.series` (QR via R's LINPACK `dqrdc2`, ported in
+//!   `linpack`; NA-aware per-gene refits).
 //! - `contrasts` `contrasts.fit`, incl. the non-orthogonal cov/Cholesky route.
 //! - `ebayes`    `eBayes`, `squeezeVar`, `fitFDist`, `fitFDistRobustly`.
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
