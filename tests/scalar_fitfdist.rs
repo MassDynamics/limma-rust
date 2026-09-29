@@ -87,3 +87,15 @@ fn fitfdist_matches_golden() {
         report.finish();
     }
 }
+
+/// fitFDistRobustly on exactly two informative values after dropping the rest stops in R
+/// (`replacement has length zero`), which is what limma 3.56.2 and legacy = TRUE do.
+#[test]
+fn robust_with_two_informative_values_errors() {
+    let x = [0.5, 1.5, f64::NAN, 0.8];
+    let df1 = [2.0, 3.0, 2.0, 0.0];
+    assert!(fit_f_dist_robustly(&x, &df1, None, [0.05, 0.1]).is_err());
+    let x = [0.5, 1.5, 0.9, 0.8];
+    let df1 = [2.0, 3.0, 2.0, 0.0];
+    assert!(fit_f_dist_robustly(&x, &df1, None, [0.05, 0.1]).is_ok());
+}

@@ -337,6 +337,11 @@ pub fn fit_f_dist_robustly(
             df1.to_vec()
         };
         let covs: Option<Vec<f64>> = covariate.map(|c| idx_ok.iter().map(|&i| c[i]).collect());
+        // With two values left, R's `n == 2` return is fitFDist's list, which has no df2.shrunk,
+        // so `df2.shrunk[ok] <- fit$df2.shrunk` stops.
+        if idx_ok.len() == 2 {
+            return Err(LimmaError::Invalid("replacement has length zero".into()));
+        }
         let fit = fit_f_dist_robustly(&xs, &df1s, covs.as_deref(), winsor_tail_p)?;
         let mut df2_shrunk = vec![fit.df2; n];
         for (k, &i) in idx_ok.iter().enumerate() {
