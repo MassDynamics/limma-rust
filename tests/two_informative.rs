@@ -61,3 +61,18 @@ fn fewer_than_two_informative_is_nan_as_in_r() {
     let fit = fit_f_dist_unequal_df1(&[0.8, 0.0, 0.0], &[3.0], None, None, false, None).unwrap();
     assert!(fit.scale[0].is_nan() && fit.df2.is_nan());
 }
+
+/// Both length checks say "covariate", as fitFDistUnequalDF1.R:16 and :22 do.
+#[test]
+fn prior_weights_length_message_matches_r() {
+    let x = [1.0, 2.0, 3.0];
+    let df1 = [2.0, 3.0, 4.0];
+    let Err(err) = fit_f_dist_unequal_df1(&x, &df1, None, None, false, Some(&[1.0, 1.0])) else {
+        panic!("length mismatch must fail");
+    };
+    assert!(
+        err.to_string()
+            .contains("x and covariate are different lengths"),
+        "{err}"
+    );
+}

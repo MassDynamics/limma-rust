@@ -34,23 +34,17 @@ pub fn at(v: &[f64], i: usize) -> f64 {
 /// `order(x)`: stable ascending, `NaN` last.
 pub fn order_asc(x: &[f64]) -> Vec<usize> {
     let mut idx: Vec<usize> = (0..x.len()).collect();
-    idx.sort_by(|&a, &b| match (x[a].is_nan(), x[b].is_nan()) {
-        (true, true) => std::cmp::Ordering::Equal,
-        (true, false) => std::cmp::Ordering::Greater,
-        (false, true) => std::cmp::Ordering::Less,
-        _ => x[a].partial_cmp(&x[b]).unwrap(),
-    });
+    idx.sort_by(|&a, &b| cmp_nan_last(x[a], x[b]));
     idx
 }
 
 /// `order(x, decreasing = TRUE)`: stable descending, `NaN` last.
 pub fn order_desc(x: &[f64]) -> Vec<usize> {
     let mut idx: Vec<usize> = (0..x.len()).collect();
+    // Descending on values, NaN still last: swap only the non-NaN comparison.
     idx.sort_by(|&a, &b| match (x[a].is_nan(), x[b].is_nan()) {
-        (true, true) => std::cmp::Ordering::Equal,
-        (true, false) => std::cmp::Ordering::Greater,
-        (false, true) => std::cmp::Ordering::Less,
-        _ => x[b].partial_cmp(&x[a]).unwrap(),
+        (false, false) => cmp_nan_last(x[b], x[a]),
+        _ => cmp_nan_last(x[a], x[b]),
     });
     idx
 }
@@ -692,7 +686,8 @@ pub fn fit_f_dist_unequal_df1(
     if let Some(w) = &pw {
         if w.len() != n {
             return Err(LimmaError::Invalid(
-                "x and prior.weights are different lengths".into(),
+                // R says covariate here too (fitFDistUnequalDF1.R:22 copy-paste).
+                "x and covariate are different lengths".into(),
             ));
         }
         if w.iter().any(|v| v.is_nan()) {
