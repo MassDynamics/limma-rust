@@ -682,7 +682,10 @@ pub fn fit_f_dist_unequal_df1(
             ));
         }
         if c.iter().any(|v| v.is_nan()) {
-            return Err(LimmaError::Invalid("covariate contains NA values".into()));
+            // R's message really says prior.weights here (fitFDistUnequalDF1.R:17 copy-paste).
+            return Err(LimmaError::Invalid(
+                "prior.weights contain NA values".into(),
+            ));
         }
     }
     let mut pw: Option<Vec<f64>> = prior_weights.map(|w| w.to_vec());
@@ -730,8 +733,6 @@ pub fn fit_f_dist_unequal_df1(
         }
     }
 
-    let mut prior_weights_present = pw.is_some();
-
     // Check there are some informative x values
     let mut informative: Vec<bool> = x.iter().map(|&v| v > 0.0).collect();
     if let Some(w) = &pw {
@@ -751,12 +752,17 @@ pub fn fit_f_dist_unequal_df1(
             df2_shrunk: None,
         });
     }
+    // R sets prior.weights to NULL here but leaves PriorWeights as it was. When PriorWeights is
+    // TRUE (any NA x or df1 < 0.01), `w * NULL` is numeric(0), so emean is 0/0 = NaN and the
+    // likelihood is sum(NULL * ...) = 0 for every par. optimize() then returns the minimum of a
+    // constant, the scale is NaN and every moderated statistic downstream is NaN. Reproduced
+    // as is (round-3 review, golden edge_two_informative_*).
+    let mut null_weights = false;
     if n_informative == 2 {
         covariate = None;
         robust = false;
+        null_weights = pw.is_some();
         pw = None;
-        // R leaves PriorWeights TRUE here and multiplies w by NULL; treat it as no weights.
-        prior_weights_present = false;
     }
 
     // Avoid exactly zero x values for moment estimation
@@ -771,13 +777,13 @@ pub fn fit_f_dist_unequal_df1(
     let d1: Vec<f64> = df1.iter().map(|d| d / 2.0).collect();
     let e: Vec<f64> = (0..n).map(|i| z[i] + logmdigamma(at(&d1, i))).collect();
     let mut w: Vec<f64> = (0..n).map(|i| 1.0 / trigamma(at(&d1, i))).collect();
-    if prior_weights_present {
-        let pwv = pw.as_ref().unwrap();
+    if let Some(pwv) = &pw {
         for i in 0..n {
             w[i] *= pwv[i];
         }
     }
     let emean: Vec<f64> = match covariate {
+        None if null_weights => vec![f64::NAN],
         None => {
             let sw: f64 = sum(&w);
             let swe: f64 = (0..n).map(|i| w[i] * e[i]).sum();
@@ -794,6 +800,9 @@ pub fn fit_f_dist_unequal_df1(
     // Log-likelihood function
     let d1x: Vec<f64> = (0..n).map(|i| at(&d1, i) * xpos[i]).collect();
     let minus_twice_log_lik = |par: f64| -> f64 {
+        if null_weights {
+            return -2.0 * 0.0;
+        }
         let d2 = par / (1.0 - par);
         let lmd = logmdigamma(d2);
         let lg_d2 = lgammafn(d2);
@@ -804,10 +813,9 @@ pub fn fit_f_dist_unequal_df1(
             let term = -(d1i + d2) * (d1x[i] / d2s20).ln_1p() - d1i * d2s20.ln()
                 + lgammafn(d1i + d2)
                 - lg_d2;
-            acc += if prior_weights_present {
-                pw.as_ref().unwrap()[i] * term
-            } else {
-                term
+            acc += match &pw {
+                Some(pwv) => pwv[i] * term,
+                None => term,
             };
         }
         -2.0 * acc
@@ -1072,7 +1080,13 @@ pub struct EBayes {
     pub f: Option<Vec<f64>>,
     pub f_p_value: Option<Vec<f64>>,
     pub f_df1: Option<f64>,
+    /// R warnings `eBayes` raised, in order.
+    pub warnings: Vec<&'static str>,
 }
+
+pub const VAR_PRIOR_WARNING: &str = "Estimation of var.prior failed - set to default value";
+pub const RECYCLE_WARNING: &str =
+    "number of items to replace is not a multiple of replacement length";
 
 /// `eBayes(fit, ...)`.
 pub fn ebayes(fit: &MArrayLm, opts: &EBayesOptions) -> Result<EBayes> {
@@ -1154,8 +1168,10 @@ pub fn ebayes(fit: &MArrayLm, opts: &EBayesOptions) -> Result<EBayes> {
             Some(var_prior_lim),
         );
     }
-    if var_prior.iter().any(|v| v.is_nan()) {
-        // Estimation of var.prior failed - set to default value
+    let mut warnings = Vec::new();
+    let n_na = var_prior.iter().filter(|v| v.is_nan()).count();
+    if n_na > 0 {
+        // `out$var.prior[is.na(out$var.prior)] <- 1/out$s2.prior`, recycled as R does.
         let mut k = 0;
         for v in var_prior.iter_mut() {
             if v.is_nan() {
@@ -1163,6 +1179,10 @@ pub fn ebayes(fit: &MArrayLm, opts: &EBayesOptions) -> Result<EBayes> {
                 k += 1;
             }
         }
+        if n_na % s2_prior.len() != 0 {
+            warnings.push(RECYCLE_WARNING);
+        }
+        warnings.push(VAR_PRIOR_WARNING);
     }
     let mut lods = vec![0.0; ngenes * ncoef];
     let log_odds = (opts.proportion / (1.0 - opts.proportion)).ln();
@@ -1212,6 +1232,7 @@ pub fn ebayes(fit: &MArrayLm, opts: &EBayesOptions) -> Result<EBayes> {
         f,
         f_p_value,
         f_df1,
+        warnings,
     })
 }
 

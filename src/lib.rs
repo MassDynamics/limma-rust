@@ -5,19 +5,22 @@
 //! checked against it (see `tests/` and the repo `README.md`), under the tolerance policy
 //! recorded in each corpus manifest.
 //!
-//! Module map (filled in by the ordered forge cards, see `docs/cards.md`):
+//! Module map:
 //!
 //! - `nmath`     R's distribution functions and gamma family (`pt`, `qt`, `pf`, `qf`,
 //!   `pnorm`, `qnorm`, `pbeta`, `qbeta`, `pgamma`, `qgamma`, `pchisq`, `qchisq`, `digamma`,
 //!   `trigamma`) plus limma's `trigammaInverse`. Ported from R's `src/nmath`, not from a
 //!   generic stats crate: tails must match R within the corpus tolerances.
 //! - `lowess`    line-for-line port of R's C `clowess` (used by `eBayes(trend=TRUE)`).
-//! - `lm`        `lmFit` / `lm.series` (QR via R's LINPACK `dqrdc2`, ported in
-//!   `linpack`; NA-aware per-gene refits).
+//! - `fit`       `lmFit` / `lm.series`, NA-aware per-gene refits.
+//! - `linpack`   R's LINPACK QR (`dqrdc2`, `dqrsl`, `dqrls`) behind `qr()` and `lm.fit()`.
+//! - `linalg`    small dense linear algebra and R vector helpers.
 //! - `contrasts` `contrasts.fit`, incl. the non-orthogonal cov/Cholesky route.
-//! - `ebayes`    `eBayes`, `squeezeVar`, `fitFDist`, `fitFDistRobustly`.
+//! - `ebayes`    `eBayes`, `squeezeVar`, `fitFDist`, `fitFDistUnequalDF1`, `fitFDistRobustly`.
+//! - `optim`     R's `optimize()` and `uniroot()`.
+//! - `quad`      `statmod::gauss.quad.prob` for `fitFDistRobustly`.
+//! - `splines`   `splines::ns()` for `fitFDist` with a covariate.
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
-//! - `camera`    `camera` parametric path (used by the enrichment job).
 
 pub mod contrasts;
 pub mod ebayes;
