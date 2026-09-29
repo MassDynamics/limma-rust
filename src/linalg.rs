@@ -502,7 +502,7 @@ mod tests {
 
     #[test]
     fn cmp_nan_last_puts_nan_last() {
-        let mut x = vec![f64::NAN, 2.0, f64::NEG_INFINITY, f64::NAN, -1.0];
+        let mut x = [f64::NAN, 2.0, f64::NEG_INFINITY, f64::NAN, -1.0];
         x.sort_by(|a, b| cmp_nan_last(*a, *b));
         assert_eq!(&x[..3], &[f64::NEG_INFINITY, -1.0, 2.0]);
         assert!(x[3].is_nan() && x[4].is_nan());
