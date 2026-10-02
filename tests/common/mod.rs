@@ -108,7 +108,7 @@ pub fn corpus_root() -> PathBuf {
             );
             root
         }
-        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/golden/corpus"),
+        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/golden/corpus"),
     }
 }
 
