@@ -1,0 +1,12 @@
+steps:
+  - label: ":lint-roller: lint"
+    key: lint
+    command: scripts/lint
+    agents:
+      ebdeploy: true
+
+  - label: ":rust: test"
+    key: test
+    command: scripts/test
+    agents:
+      ebdeploy: true

@@ -1,0 +1,16 @@
+#!/bin/bash
+# Rust tests (unit plus the scalar and matrix R goldens in tests/golden/corpus/) in the Rust
+# image, once in the debug profile and once in the release profile the consumers ship. The tracked
+# files are streamed into the container as a tar on stdin (a bind mount comes up empty on CI
+# agents whose Docker daemon cannot see the checkout).
+# Usage: scripts/test
+set -e
+REPO=$(cd "$(dirname "$0")/.." && pwd)
+export COPYFILE_DISABLE=1   # macOS tar: no AppleDouble ._ files in the stream
+RUST_IMAGE=rust:1.95.0      # keep equal to rust-toolchain.toml
+
+echo "--- :rust: cargo test (debug + release)"
+git -C "$REPO" ls-files -z | tar -C "$REPO" --null -T - -cf - \
+  | docker run -i --rm --platform linux/amd64 "$RUST_IMAGE" sh -c \
+    "mkdir /work && cd /work && tar -xf - && cargo test --locked \
+     && cargo test --release --locked"
