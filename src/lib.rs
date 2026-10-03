@@ -13,6 +13,8 @@
 //!   generic stats crate: tails must match R within the corpus tolerances.
 //! - `lowess`    line-for-line port of R's C `clowess` (used by `eBayes(trend=TRUE)`).
 //! - `fit`       `lmFit` / `lm.series`, NA-aware per-gene refits.
+//! - `block`     `duplicateCorrelation(block = )` and `gls.series(block = )`, the block path
+//!   of `lmFit` (statmod's `mixedModel2Fit` and `glmgam.fit` inside).
 //! - `linpack`   R's LINPACK QR (`dqrdc2`, `dqrsl`, `dqrls`) behind `qr()` and `lm.fit()`.
 //! - `linalg`    small dense linear algebra and R vector helpers.
 //! - `contrasts` `contrasts.fit`, incl. the non-orthogonal cov/Cholesky route.
@@ -22,6 +24,7 @@
 //! - `splines`   `splines::ns()` for `fitFDist` with a covariate.
 //! - `toptable`  `topTable` (CIs, BH adjust, moderated F), `decideTests`.
 
+pub mod block;
 pub mod contrasts;
 pub mod ebayes;
 pub mod fit;
