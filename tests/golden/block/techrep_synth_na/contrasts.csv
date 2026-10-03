@@ -1,0 +1,5 @@
+"row","(Intercept) - (Intercept)+condB","(Intercept) - (Intercept)+condC","(Intercept) - (Intercept)+condD","(Intercept)+condB - (Intercept)+condC","(Intercept)+condB - (Intercept)+condD","(Intercept)+condC - (Intercept)+condD"
+"(Intercept)",0,0,0,0,0,0
+"condB",-1,0,0,1,1,0
+"condC",0,-1,0,-1,0,1
+"condD",0,0,-1,0,-1,-1

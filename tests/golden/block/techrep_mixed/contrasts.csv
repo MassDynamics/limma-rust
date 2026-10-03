@@ -1,0 +1,5 @@
+"row","condA - condB","condA - condC","condA - condD","condB - condC","condB - condD","condC - condD"
+"condA",1,1,1,0,0,0
+"condB",-1,0,0,1,1,0
+"condC",0,-1,0,-1,0,1
+"condD",0,0,-1,0,-1,-1

@@ -1,8 +1,10 @@
 # block_goldens.R
 #
 # Goldens for the block path: duplicateCorrelation(block = ) and lmFit(block = , correlation = )
-# (gls.series). Writes one directory per case next to this script. Doubles are printed with
-# %.17g so they round-trip exactly.
+# (gls.series), then contrasts.fit -> eBayes (robust x trend) -> topTable / decideTests on that
+# fit, laid out like the matrix goldens (all-missing genes dropped). Contrasts are every pair of design groups. Writes one
+# directory per case next to this script, plus versions.csv. Doubles are printed with %.17g so
+# they round-trip exactly.
 #
 # Run from the limma-rust root in the corpus R image (R 4.5.0, limma 3.68.5, statmod 1.5.2):
 #
@@ -24,6 +26,11 @@
 suppressPackageStartupMessages(library(limma))
 
 out_root <- "tests/golden/block"
+write.csv(data.frame(package = c("R", "limma", "statmod"),
+                     version = c(paste(R.version$major, R.version$minor, sep = "."),
+                                 as.character(packageVersion("limma")),
+                                 as.character(packageVersion("statmod")))),
+          file.path(out_root, "versions.csv"), row.names = FALSE, quote = 1)
 
 fmt <- function(x) ifelse(is.na(x), "NA", sprintf("%.17g", x))
 
@@ -34,6 +41,46 @@ write_mat <- function(m, dir, file) {
   out <- data.frame(row = rn, apply(m, 2, fmt), check.names = FALSE, stringsAsFactors = FALSE)
   if (is.null(colnames(m))) colnames(out)[-1] <- paste0("V", seq_len(ncol(m)))
   write.csv(out, file.path(dir, file), row.names = FALSE, quote = 1)
+}
+
+# Every pair of design groups (distinct design rows), as coefficient contrasts.
+pair_contrasts <- function(design) {
+  g <- unique(design)
+  lab <- apply(g, 1, function(r) paste(colnames(design)[r != 0], collapse = "+"))
+  pairs <- combn(nrow(g), 2)
+  cm <- apply(pairs, 2, function(p) g[p[1], ] - g[p[2], ])
+  dimnames(cm) <- list(colnames(design), apply(pairs, 2, function(p) sprintf("%s - %s", lab[p[1]], lab[p[2]])))
+  cm
+}
+
+# Genes with no observation at all are dropped first (eBayes(trend = TRUE) stops on their NA
+# Amean, and production never sends them).
+write_downstream <- function(fit, design, dir) {
+  fit <- fit[is.finite(fit$Amean), ]
+  cm <- pair_contrasts(design)
+  write_mat(cm, dir, "contrasts.csv")
+  cf <- contrasts.fit(fit, cm)
+  write_mat(cf$coefficients, dir, "contrasts_coefficients.csv")
+  write_mat(cf$stdev.unscaled, dir, "contrasts_stdev_unscaled.csv")
+  write_mat(cf$cov.coefficients, dir, "contrasts_cov_coefficients.csv")
+  n <- nrow(cf$coefficients)
+  rep_n <- function(x) if (length(x) == 1) rep(x, n) else x
+  for (robust in c(FALSE, TRUE)) for (trend in c(FALSE, TRUE)) {
+    eb <- eBayes(cf, robust = robust, trend = trend)
+    tag <- sprintf("ebayes_rob%s_trend%s", robust, trend)
+    write_mat(eb$t, dir, paste0(tag, "_t.csv"))
+    write_mat(eb$p.value, dir, paste0(tag, "_p.csv"))
+    write_mat(eb$lods, dir, paste0(tag, "_lods.csv"))
+    write_mat(cbind(s2_post = eb$s2.post, df_total = eb$df.total, F = eb$F, F_p = eb$F.p.value,
+                    s2_prior = rep_n(eb$s2.prior), df_prior = rep_n(eb$df.prior)),
+              dir, paste0(tag, "_scalars.csv"))
+    for (j in seq_len(ncol(cm))) {
+      tt <- topTable(eb, coef = j, number = Inf, sort.by = "none", confint = 0.95)
+      write_mat(tt, dir, sprintf("%s_toptable_%d.csv", tag, j))
+    }
+    write_mat(unclass(decideTests(eb)), dir, paste0(tag, "_decidetests.csv"))
+    write_mat(topTable(eb, number = Inf, sort.by = "none"), dir, paste0(tag, "_toptable_F.csv"))
+  }
 }
 
 write_case <- function(id, exprs, design, block) {
@@ -55,6 +102,7 @@ write_case <- function(id, exprs, design, block) {
   write_mat(cbind(sigma = fit$sigma, df_residual = fit$df.residual, Amean = fit$Amean),
             dir, "lmfit_scalars.csv")
   write_mat(fit$cov.coefficients, dir, "lmfit_cov_coefficients.csv")
+  write_downstream(fit, design, dir)
   cat(sprintf("%s: %d genes x %d arrays, %d blocks, consensus %.6f, %d NA rho\n", id,
               nrow(exprs), ncol(exprs), length(unique(block)), dc$consensus.correlation,
               sum(is.na(dc$atanh.correlations))))
