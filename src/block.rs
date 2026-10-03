@@ -185,28 +185,7 @@ pub fn mixed_model2_fit_varcomp(
     }
     let qy = qr.qty(y)[r..].to_vec();
 
-    // La.svd(QtZ, nu = mq): d^2 and u from eigen(QtZ %*% t(QtZ)).
-    let mut zzt = vec![0.0; mq * mq];
-    for j in 0..mq {
-        for i in 0..mq {
-            let mut s = 0.0;
-            for k in 0..nz {
-                s += qtz[k * mq + i] * qtz[k * mq + j];
-            }
-            zzt[j * mq + i] = s;
-        }
-    }
-    let (values, u) = eigen_symmetric(&zzt, mq);
-    let nd = mq.min(nz);
-    let d: Vec<f64> = (0..mq)
-        .map(|i| if i < nd { values[i].max(0.0) } else { 0.0 })
-        .collect();
-    let dy: Vec<f64> = (0..mq)
-        .map(|j| {
-            let s: f64 = (0..mq).map(|i| u[j * mq + i] * qy[i]).sum();
-            s * s
-        })
-        .collect();
+    let (d, dy) = svd_d2_dy(&qtz, mq, nz, &qy);
     let mut dx = vec![1.0; mq];
     dx.extend_from_slice(&d);
 
@@ -226,6 +205,83 @@ pub fn mixed_model2_fit_varcomp(
         varcomp = [beta[0], beta[1]];
     }
     Ok(varcomp)
+}
+
+/// `s <- La.svd(QtZ, nu = mq); d <- s$d^2; dy <- drop(crossprod(s$u, Qy))^2`, padded with zeros
+/// to `mq` as `mixedModel2Fit` does. Squared singular values of R's structural zeros are near
+/// 1e-32; eigenvalues carry noise of order `mq * eps * max`, which could pass the later
+/// `abs(d) > 1e-15` gate, so anything at noise level is set to zero.
+///
+/// With fewer blocks than residual dimensions the work is the `nz x nz` problem `t(QtZ) %*% QtZ`:
+/// `u = QtZ v / sqrt(lambda)` for the nonzero directions, and the rest of `Qy` lies in the null
+/// space, where every row of `dx` is `(1, 0)`. The fits downstream depend on `dy` only through its
+/// sum over equal rows of `dx` (the null basis is arbitrary in R too), so that mass is spread
+/// evenly over the null rows.
+fn svd_d2_dy(qtz: &[f64], mq: usize, nz: usize, qy: &[f64]) -> (Vec<f64>, Vec<f64>) {
+    let noise = |top: f64| mq as f64 * f64::EPSILON * top.abs();
+    if nz >= mq {
+        let mut zzt = vec![0.0; mq * mq];
+        for j in 0..mq {
+            for i in 0..mq {
+                let mut s = 0.0;
+                for k in 0..nz {
+                    s += qtz[k * mq + i] * qtz[k * mq + j];
+                }
+                zzt[j * mq + i] = s;
+            }
+        }
+        let (values, u) = eigen_symmetric(&zzt, mq);
+        let floor = noise(values[0]);
+        let d = values
+            .iter()
+            .map(|&v| if v > floor { v } else { 0.0 })
+            .collect();
+        let dy = (0..mq)
+            .map(|j| {
+                let s: f64 = (0..mq).map(|i| u[j * mq + i] * qy[i]).sum();
+                s * s
+            })
+            .collect();
+        return (d, dy);
+    }
+    let mut ztz = vec![0.0; nz * nz];
+    for b in 0..nz {
+        for a in 0..nz {
+            ztz[b * nz + a] = (0..mq).map(|i| qtz[a * mq + i] * qtz[b * mq + i]).sum();
+        }
+    }
+    let (values, v) = eigen_symmetric(&ztz, nz);
+    let floor = noise(values[0]);
+    let mut d = vec![0.0; mq];
+    let mut dy = vec![0.0; mq];
+    let mut resid = qy.to_vec();
+    let mut k = 0;
+    for (j, &lambda) in values.iter().enumerate() {
+        if lambda <= floor {
+            continue;
+        }
+        let sigma = lambda.sqrt();
+        let u: Vec<f64> = (0..mq)
+            .map(|i| {
+                (0..nz)
+                    .map(|b| qtz[b * mq + i] * v[j * nz + b])
+                    .sum::<f64>()
+                    / sigma
+            })
+            .collect();
+        let c: f64 = u.iter().zip(qy).map(|(a, b)| a * b).sum();
+        for (r, a) in resid.iter_mut().zip(&u) {
+            *r -= c * a;
+        }
+        d[k] = lambda;
+        dy[k] = c * c;
+        k += 1;
+    }
+    let null = resid.iter().map(|r| r * r).sum::<f64>() / (mq - k) as f64;
+    for v in &mut dy[k..] {
+        *v = null;
+    }
+    (d, dy)
 }
 
 /// R's `var(x)` for a plain vector.
@@ -648,6 +704,38 @@ mod tests {
         let dc = duplicate_correlation(&m, 1, 4, &design, 1, &[0, 1, 2, 3], 0.15).unwrap();
         assert_eq!(dc.consensus_correlation, 0.0);
         assert!(dc.warning.unwrap().starts_with("Blocks all of size 1"));
+    }
+
+    #[test]
+    fn small_side_svd_matches_the_full_eigen_problem() {
+        // mq = 7, nz = 3, third column = first + second so one squared singular value is zero.
+        let (mq, nz) = (7, 3);
+        let mut qtz: Vec<f64> = (0..mq * 2)
+            .map(|i| ((i * 37 + 11) % 17) as f64 / 7.0 - 1.0)
+            .collect();
+        let third: Vec<f64> = (0..mq).map(|i| qtz[i] + qtz[mq + i]).collect();
+        qtz.extend(third);
+        let qy: Vec<f64> = (0..mq).map(|i| ((i * 13 + 5) % 11) as f64 - 4.5).collect();
+        let (d, dy) = svd_d2_dy(&qtz, mq, nz, &qy);
+
+        let zzt: Vec<f64> = (0..mq * mq)
+            .map(|ji| {
+                let (j, i) = (ji / mq, ji % mq);
+                (0..nz).map(|k| qtz[k * mq + i] * qtz[k * mq + j]).sum()
+            })
+            .collect();
+        let (values, u) = eigen_symmetric(&zzt, mq);
+        let full_dy: Vec<f64> = (0..mq)
+            .map(|j| (0..mq).map(|i| u[j * mq + i] * qy[i]).sum::<f64>().powi(2))
+            .collect();
+        assert_eq!(d.iter().filter(|&&v| v > 0.0).count(), 2);
+        for j in 0..2 {
+            assert!((d[j] - values[j]).abs() < 1e-12 * values[0]);
+            assert!((dy[j] - full_dy[j]).abs() < 1e-12 * full_dy[j].max(1.0));
+        }
+        let null: f64 = dy[2..].iter().sum();
+        let full_null: f64 = full_dy[2..].iter().sum();
+        assert!((null - full_null).abs() < 1e-12 * full_null);
     }
 
     #[test]

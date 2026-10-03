@@ -16,6 +16,10 @@
 #                     sparse for duplicateCorrelation to fit, design ~condition (intercept).
 #   bojkova_pairs     the matrix/conditions_only slice (600 genes x 24 samples, public), its
 #                     design, and blocks of two consecutive samples within each condition.
+#   techrep_mixed     300 genes, 4 conditions x 4 biological samples with 3, 2, 3, 2 technical
+#                     replicates (40 arrays, MaxBlockSize 3), design ~0 + condition. Gene 1 has
+#                     near-identical replicates (rho clamped to rhomax 0.99); gene 2 is cut to
+#                     pairs by NA with opposite-sign pair deviations (rho clamped to rhomin -0.49).
 
 suppressPackageStartupMessages(library(limma))
 
@@ -84,6 +88,31 @@ na_exprs[4, -(1:2)] <- NA                   # one block only
 na_exprs[5, c(TRUE, FALSE)] <- NA           # every block of size one
 design1 <- model.matrix(~cond)
 write_case("techrep_synth_na", na_exprs, design1, bio)
+
+# ---- techrep_mixed -------------------------------------------------------------------------
+set.seed(20261004)
+ngenes <- 300
+reps <- rep(c(3, 2, 3, 2), 4)
+bio_id <- rep(seq_along(reps), reps)
+cond <- factor(c("A", "B", "C", "D")[(bio_id - 1) %/% 4 + 1])
+bio <- sprintf("S%02d", bio_id)
+n <- length(bio)
+mu <- rnorm(ngenes, 8, 1.5)
+effect <- matrix(0, ngenes, 4)
+de <- sample(ngenes, 60)
+effect[de, 2:4] <- rnorm(60 * 3)
+sd_bio <- sqrt(rgamma(ngenes, 4, 40))
+sd_tech <- sqrt(rgamma(ngenes, 4, 80))
+bio_eff <- matrix(rnorm(ngenes * 16), ngenes, 16) * sd_bio
+exprs <- mu + effect[, as.integer(cond)] + bio_eff[, bio_id] +
+  matrix(rnorm(ngenes * n), ngenes, n) * sd_tech
+exprs[1, ] <- 8 + rnorm(16)[bio_id] + rnorm(n, 0, 1e-4)
+third <- unlist(lapply(reps, function(k) seq_len(k) == 3))
+dev <- unlist(lapply(reps, function(k) { e <- rnorm(1); c(e, -e, 0)[seq_len(k)] }))
+exprs[2, ] <- 8 + as.integer(cond) + dev + rnorm(n, 0, 1e-3)
+exprs[2, third] <- NA
+colnames(exprs) <- sprintf("%s_%s_t%d", cond, bio, sequence(reps))
+write_case("techrep_mixed", exprs, model.matrix(~0 + cond), bio)
 
 # ---- bojkova_pairs -------------------------------------------------------------------------
 mdir <- "tests/golden/corpus/matrix/conditions_only"

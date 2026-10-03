@@ -20,7 +20,12 @@ const REL_1E8: Tol = Tol {
     abs_floor: 0.0,
 };
 
-const CASES: [&str; 3] = ["techrep_synth", "techrep_synth_na", "bojkova_pairs"];
+const CASES: [&str; 4] = [
+    "techrep_synth",
+    "techrep_synth_na",
+    "bojkova_pairs",
+    "techrep_mixed",
+];
 
 fn case_dir(case: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
