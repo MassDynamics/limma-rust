@@ -147,6 +147,9 @@ pub fn eigen_symmetric(a: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
         v[i * n + i] = 1.0;
     }
     let at = |m: &[f64], i: usize, j: usize| m[j * n + i];
+    // Stop once the off-diagonal mass is at rounding level relative to the whole matrix: an
+    // absolute threshold is never reached, so every call ran all 100 sweeps.
+    let tol = f64::EPSILON * f64::EPSILON * a.iter().map(|x| x * x).sum::<f64>();
     for _sweep in 0..100 {
         let mut off = 0.0;
         for j in 0..n {
@@ -154,7 +157,7 @@ pub fn eigen_symmetric(a: &[f64], n: usize) -> (Vec<f64>, Vec<f64>) {
                 off += at(&m, i, j) * at(&m, i, j);
             }
         }
-        if off == 0.0 || off < 1e-300 {
+        if off <= tol {
             break;
         }
         for p in 0..n {

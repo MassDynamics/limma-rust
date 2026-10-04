@@ -1,6 +1,6 @@
 //! `lmFit` / `lm.series` (limma 3.66.0, `R/lmfit.R`), least-squares method only: no
-//! weights, no duplicate spots, no block correlation. Matrices are column-major `f64`
-//! slices; `NaN` plays R's `NA`.
+//! weights, no duplicate spots. The block path (`gls.series`) is in `block`. Matrices are
+//! column-major `f64` slices; `NaN` plays R's `NA`.
 
 use crate::linalg::chol2inv_upper;
 use crate::linpack::{lm_fit, qr_decompose, Qr};

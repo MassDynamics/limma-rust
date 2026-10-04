@@ -1,0 +1,5 @@
+"row","condition2h - condition6h","condition2h - condition10h","condition2h - condition24h","condition6h - condition10h","condition6h - condition24h","condition10h - condition24h"
+"condition10h",0,-1,0,-1,0,1
+"condition24h",0,0,-1,0,-1,-1
+"condition2h",1,1,1,0,0,0
+"condition6h",-1,0,0,1,1,0
