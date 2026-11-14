@@ -1,4 +1,4 @@
-//! The block path against `tests/golden/block/<case>/` (written by `block_goldens.R` there):
+//! The block path against `tests-validation/expected/block/<case>/` (written by `tests-validation/scripts/block_goldens.R`):
 //! `duplicateCorrelation(block = )` and `lmFit(block = , correlation = )`. The fit is fed R's
 //! consensus correlation so it is checked on its own. Tolerances are the matrix goldens' (logFC
 //! abs 1e-10, everything else rel 1e-8); the correlations are rel 1e-8 too.
@@ -28,15 +28,14 @@ const CASES: [&str; 4] = [
 ];
 
 fn case_dir(case: &str) -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/golden/block")
-        .join(case)
+    common::block_dir(case)
 }
 
 /// Block labels coded in sorted order, as `factor()` levels them (the goldens run in the C
 /// collation).
 fn read_block(dir: &Path) -> Vec<usize> {
-    let mut reader = csv::Reader::from_path(dir.join("block.csv")).expect("block.csv");
+    let mut reader =
+        csv::Reader::from_path(common::case_file(dir, "block.csv")).expect("block.csv");
     let labels: Vec<String> = reader
         .records()
         .map(|r| r.expect("block.csv record")[1].to_owned())

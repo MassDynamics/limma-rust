@@ -96,9 +96,9 @@ fn comparator_matches_non_finite_exactly_and_finite_by_rel_or_floor() {
     assert!(!passes(EXACT, f64::from_bits(0.25f64.to_bits() + 1), 0.25));
 }
 
-/// The per-file report keeps the largest relative error and the value it came from — the
-/// number each card records — and leaves the non-finite and zero goldens out of it, having no
-/// relative error to contribute.
+/// The per-file report keeps the largest relative error — the number each card records — and
+/// the value that came closest to its bound, and leaves the non-finite and zero goldens out of
+/// the relative error, having none to contribute.
 #[test]
 fn report_keeps_the_largest_relative_error_and_the_value_it_came_from() {
     let mut report = Report::new("example.csv");
@@ -109,6 +109,12 @@ fn report_keeps_the_largest_relative_error_and_the_value_it_came_from() {
     report.check(PQ, "lower_zero", 0.0, 0.0);
 
     assert_eq!(report.worst, "large");
+    // 4e-13 against a bound of 1e-12 * 2.
+    assert!(
+        (report.max_used - 0.2).abs() < 1e-3,
+        "max_used = {}",
+        report.max_used
+    );
     // `2.0 + 4e-13` is not that decimal, so the recorded error is 2e-13 only to a few digits.
     assert!(
         (report.max_rel - 2e-13).abs() < 1e-3 * 2e-13,
@@ -117,7 +123,7 @@ fn report_keeps_the_largest_relative_error_and_the_value_it_came_from() {
     );
     assert_eq!(report.checked, 5);
     assert_eq!(report.non_finite, 1);
-    assert_eq!(report.zeros, 1);
+    assert_eq!(report.at_floor, 1);
     // Prints the line the cards quote, and passes because nothing missed tolerance.
-    report.finish();
+    report.finish_unrecorded();
 }

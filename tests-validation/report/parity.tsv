@@ -1,0 +1,69 @@
+test	comparison	values_checked	tolerance_used	closest_value	closest_bound	closest_abs_error	closest_rel_error	max_rel_error	non_finite	at_floor	failed
+block_goldens	bojkova_pairs/dupcor	601	3.04e-5	atanh.correlations[91,atanh_correlation]	rel 1e-8	6.38e-16	3.04e-13	3.04e-13	0	0	0
+block_goldens	bojkova_pairs/lmfit	6616	4.67e-8	Amean[479]	rel 1e-8	5.33e-15	4.67e-16	4.67e-16	0	2412	0
+block_goldens	techrep_mixed/dupcor	301	5.54e-6	atanh.correlations[224,atanh_correlation]	rel 1e-8	4.77e-16	5.54e-14	5.54e-14	0	0	0
+block_goldens	techrep_mixed/lmfit	3316	5.33e-5	coefficients[173,condA]	abs 1e-10	5.33e-15	5.14e-16	9.93e-16	0	1212	0
+block_goldens	techrep_synth/dupcor	401	3.75e-6	atanh.correlations[121,atanh_correlation]	rel 1e-8	8.60e-16	3.75e-14	3.75e-14	0	0	0
+block_goldens	techrep_synth/lmfit	4416	4.43e-8	Amean[273]	rel 1e-8	3.55e-15	4.43e-16	4.43e-16	0	1612	0
+block_goldens	techrep_synth_na/dupcor	396	1.41e-5	atanh.correlations[173,atanh_correlation]	rel 1e-8	2.43e-15	1.41e-13	1.41e-13	0	0	0
+block_goldens	techrep_synth_na/lmfit	4390	3.55e-5	coefficients[400,(Intercept)]	abs 1e-10	3.55e-15	5.63e-16	1.22e-15	0	1589	0
+matrix_ebayes	bojkova_pairs/contrasts	7200	0.00e0	coefficients[1,condition2h - condition6h]	abs 1e-10	0.00e0	0.00e0	0.00e0	0	3600	0
+matrix_ebayes	bojkova_pairs/ebayes_robFALSE_trendFALSE	52800	3.52e-3	lods[21,condition6h - condition24h]	rel 1e-8, abs 1e-10	3.75e-13	3.52e-11	3.52e-11	0	17967	0
+matrix_ebayes	bojkova_pairs/ebayes_robFALSE_trendTRUE	52800	1.09e-1	lods[1,condition10h - condition24h]	rel 1e-8, abs 1e-10	1.09e-11	1.44e-8	1.76e-10	0	17964	0
+matrix_ebayes	bojkova_pairs/ebayes_robTRUE_trendFALSE	52800	3.52e-3	lods[21,condition6h - condition24h]	rel 1e-8, abs 1e-10	3.75e-13	3.52e-11	3.52e-11	0	17967	0
+matrix_ebayes	bojkova_pairs/ebayes_robTRUE_trendTRUE	52800	5.80e-2	toptable_1[93].CI.L	abs 1e-10	5.80e-12	3.93e-12	2.07e-10	0	17960	0
+matrix_ebayes	conditions_categorical_numeric_covariates/ebayes_robFALSE_trendFALSE	52800	6.76e-2	t[599,condition24h - condition6h]	rel 1e-8	3.17e-13	6.76e-10	6.76e-10	0	17809	0
+matrix_ebayes	conditions_categorical_numeric_covariates/ebayes_robFALSE_trendTRUE	52800	6.76e-2	t[599,condition24h - condition6h]	rel 1e-8	3.24e-13	6.76e-10	6.76e-10	0	17822	0
+matrix_ebayes	conditions_categorical_numeric_covariates/ebayes_robTRUE_trendFALSE	52800	6.76e-2	t[599,condition24h - condition6h]	rel 1e-8	3.17e-13	6.76e-10	6.76e-10	0	17809	0
+matrix_ebayes	conditions_categorical_numeric_covariates/ebayes_robTRUE_trendTRUE	52800	6.76e-2	t[599,condition24h - condition6h]	rel 1e-8	3.24e-13	6.76e-10	6.76e-10	0	17825	0
+matrix_ebayes	conditions_numeric_covariate/ebayes_robFALSE_trendFALSE	52800	4.69e-2	t[111,condition2h - condition6h]	rel 1e-8	8.75e-13	4.69e-10	4.69e-10	0	17806	0
+matrix_ebayes	conditions_numeric_covariate/ebayes_robFALSE_trendTRUE	52800	4.69e-2	t[111,condition2h - condition6h]	rel 1e-8	9.10e-13	4.69e-10	4.69e-10	0	17809	0
+matrix_ebayes	conditions_numeric_covariate/ebayes_robTRUE_trendFALSE	52800	4.69e-2	t[111,condition2h - condition6h]	rel 1e-8	8.75e-13	4.69e-10	4.69e-10	0	17806	0
+matrix_ebayes	conditions_numeric_covariate/ebayes_robTRUE_trendTRUE	52800	6.56e-2	toptable_5[93].CI.R	abs 1e-10	6.56e-12	1.88e-12	4.69e-10	0	17814	0
+matrix_ebayes	conditions_only/ebayes_robFALSE_trendFALSE	52800	9.27e-3	lods[529,condition10h - condition24h]	rel 1e-8	4.22e-13	9.27e-11	9.27e-11	0	17886	0
+matrix_ebayes	conditions_only/ebayes_robFALSE_trendTRUE	52800	1.87e-1	lods[410,condition10h - condition2h]	rel 1e-8	6.77e-13	1.87e-9	1.87e-9	0	17901	0
+matrix_ebayes	conditions_only/ebayes_robTRUE_trendFALSE	52800	9.27e-3	lods[529,condition10h - condition24h]	rel 1e-8	4.22e-13	9.27e-11	9.27e-11	0	17886	0
+matrix_ebayes	conditions_only/ebayes_robTRUE_trendTRUE	52800	2.37e-2	lods[410,condition10h - condition2h]	rel 1e-8	2.36e-12	2.37e-10	2.37e-10	0	17904	0
+matrix_ebayes	techrep_mixed/contrasts	3600	7.11e-5	coefficients[173,condA - condB]	abs 1e-10	7.11e-15	2.61e-14	0.00e0	0	1800	0
+matrix_ebayes	techrep_mixed/ebayes_robFALSE_trendFALSE	26400	9.26e-3	toptable_1[2].CI.L	abs 1e-10	9.26e-13	2.68e-13	8.45e-11	0	9357	0
+matrix_ebayes	techrep_mixed/ebayes_robFALSE_trendTRUE	26400	5.50e-2	lods[190,condC - condD]	rel 1e-8, abs 1e-10	5.50e-12	1.62e-8	8.85e-11	0	9365	0
+matrix_ebayes	techrep_mixed/ebayes_robTRUE_trendFALSE	26400	3.56e-2	lods[39,condA - condC]	rel 1e-8, abs 1e-10	3.77e-12	3.56e-10	3.56e-10	0	9363	0
+matrix_ebayes	techrep_mixed/ebayes_robTRUE_trendTRUE	26400	3.87e-2	lods[263,condA - condB]	rel 1e-8, abs 1e-10	3.87e-12	4.26e-9	2.12e-11	0	9368	0
+matrix_ebayes	techrep_synth/contrasts	4800	0.00e0	coefficients[1,condA - condB]	abs 1e-10	0.00e0	0.00e0	0.00e0	0	2400	0
+matrix_ebayes	techrep_synth/ebayes_robFALSE_trendFALSE	35200	8.45e-6	lods[304,condA - condD]	rel 1e-8, abs 1e-10	8.88e-16	8.45e-14	8.45e-14	0	12380	0
+matrix_ebayes	techrep_synth/ebayes_robFALSE_trendTRUE	35200	1.67e-5	toptable_1[1].CI.L	abs 1e-10	1.67e-15	2.37e-15	2.45e-14	0	12377	0
+matrix_ebayes	techrep_synth/ebayes_robTRUE_trendFALSE	35200	4.44e-6	toptable_1[296].CI.L	abs 1e-10	4.44e-16	2.10e-16	4.42e-14	0	12375	0
+matrix_ebayes	techrep_synth/ebayes_robTRUE_trendTRUE	35200	9.08e-5	lods[381,condA - condC]	rel 1e-8, abs 1e-10	2.93e-14	9.08e-13	9.08e-13	0	12370	0
+matrix_ebayes	techrep_synth_na/contrasts	4754	2.89e-5	coefficients[144,(Intercept)+condB - (Intercept)+condC]	abs 1e-10	2.89e-15	4.33e-15	1.00e-15	0	2377	0
+matrix_ebayes	techrep_synth_na/ebayes_robFALSE_trendFALSE	35038	9.70e-4	toptable_2[115].CI.L	abs 1e-10	9.70e-14	7.08e-14	9.62e-12	145	12213	0
+matrix_ebayes	techrep_synth_na/ebayes_robFALSE_trendTRUE	35038	4.04e-3	lods[77,(Intercept)+condB - (Intercept)+condC]	rel 1e-8, abs 1e-10	4.09e-12	4.04e-11	4.04e-11	145	12212	0
+matrix_ebayes	techrep_synth_na/ebayes_robTRUE_trendFALSE	35038	9.70e-4	toptable_2[115].CI.L	abs 1e-10	9.70e-14	7.08e-14	9.62e-12	145	12213	0
+matrix_ebayes	techrep_synth_na/ebayes_robTRUE_trendTRUE	35038	4.04e-3	lods[77,(Intercept)+condB - (Intercept)+condC]	rel 1e-8, abs 1e-10	4.09e-12	4.04e-11	4.04e-11	145	12212	0
+matrix_lmfit	conditions_categorical_numeric_covariates/contrasts	7236	5.83e-4	coefficients[127,condition24h - condition6h]	abs 1e-10	5.83e-14	2.78e-13	2.68e-15	0	3600	0
+matrix_lmfit	conditions_categorical_numeric_covariates/lmfit	9036	7.99e-4	coefficients[448,condition24h]	abs 1e-10	7.99e-14	6.92e-15	5.08e-13	0	3600	0
+matrix_lmfit	conditions_numeric_covariate/contrasts	7236	6.22e-4	coefficients[112,condition10h - condition6h]	abs 1e-10	6.22e-14	9.54e-13	2.77e-15	0	3600	0
+matrix_lmfit	conditions_numeric_covariate/lmfit	7825	8.53e-4	coefficients[127,condition24h]	abs 1e-10	8.53e-14	8.10e-15	5.03e-13	0	3000	0
+matrix_lmfit	conditions_only/contrasts	7236	6.04e-4	coefficients[112,condition10h - condition6h]	abs 1e-10	6.04e-14	1.41e-12	2.16e-15	0	3606	0
+matrix_lmfit	conditions_only/lmfit	6616	7.28e-4	coefficients[493,condition2h]	abs 1e-10	7.28e-14	6.38e-15	5.03e-13	0	2412	0
+scalar_f	pf.csv	6783	4.71e-3	line 2115 lower (x = 0.5, df1 = 30, df2 = 10000)	rel 1e-12, abs 1e-300	4.86e-17	4.71e-15	4.71e-15	2	359	0
+scalar_f	qf.csv	28056	6.73e-2	line 10672 q_upper (p = 8.5e-1, df1 = 2, df2 = 100)	rel 1e-12, abs 1e-300	1.10e-14	6.73e-14	6.73e-14	879	9918	0
+scalar_fitfdist	fitfdist_n2000_df10	8006	7.46e-8	robtrend.scale[1993]	rel 1e-6	2.00e-14	7.46e-14	7.46e-14	0	0	0
+scalar_fitfdist	fitfdist_n200_df4	806	4.46e-8	robtrend.scale[200]	rel 1e-6	1.60e-14	4.46e-14	4.46e-14	0	0	0
+scalar_fitfdist	fitfdist_n5000_df3	20006	5.66e-8	robtrend.scale[4990]	rel 1e-6	1.50e-14	5.66e-14	5.66e-14	0	0	0
+scalar_gamma	gamma_family.csv	63	3.56e-3	line 21 trigamma(100000)	rel 1e-12, abs 1e-300	3.56e-20	3.56e-15	3.56e-15	0	2	0
+scalar_gamma	trigamma_inverse.csv	15	4.18e-3	line 3 trigamma_inverse(0.0001)	rel 1e-12, abs 1e-300	4.18e-11	4.18e-15	4.18e-15	0	0	0
+scalar_lowess	lowess_n200_f0p3.csv	400	6.83e-3	line 200 lowess_y	rel 1e-10	2.00e-15	6.83e-13	6.83e-13	0	0	0
+scalar_lowess	lowess_n200_f0p3.csv loessFit	200	6.83e-3	line 200 loessFit fitted	rel 1e-10	2.00e-15	6.83e-13	6.83e-13	0	0	0
+scalar_lowess	lowess_n3000_f0p5.csv	6000	7.78e-3	line 12 lowess_y	rel 1e-10	4.68e-15	7.78e-13	7.78e-13	0	0	0
+scalar_lowess	lowess_n500_f0p5.csv	1000	2.31e-3	line 2 lowess_y	rel 1e-10	2.97e-15	2.31e-13	2.31e-13	0	0	0
+scalar_lowess	lowess_n50_f0p667.csv	100	1.71e-3	line 50 lowess_y	rel 1e-10	1.33e-14	1.71e-13	1.71e-13	0	0	0
+scalar_pbeta	pbeta.csv	2800	4.82e-3	line 384 lower: pbeta(0.01, 50, 1)	rel 1e-12, abs 1e-300	4.82e-115	4.82e-15	4.82e-15	0	382	0
+scalar_pgamma	pchisq.csv	646	4.10e-3	line 248 lower (x = 2, df = 100)	rel 1e-12, abs 1e-300	5.06e-80	4.10e-15	4.10e-15	0	89	0
+scalar_pgamma	pgamma.csv	340	4.10e-3	line 127 lower (x = 1, shape = 50)	rel 1e-12, abs 1e-300	5.06e-80	4.10e-15	4.10e-15	0	47	0
+scalar_pgamma	qchisq.csv	12692	5.88e-3	line 650 q_upper (p = 7.5e-1, df = 1)	rel 1e-12, abs 1e-300	5.97e-16	5.88e-15	5.88e-15	0	480	0
+scalar_pgamma	qgamma.csv	3340	5.13e-3	line 2716 q (p = 1e-258, shape = 100)	rel 1e-12, abs 1e-300	5.13e-16	5.13e-15	5.13e-15	0	442	0
+scalar_pnorm	pnorm.csv	1308	4.58e-3	line 143 log_upper (x = -4.75)	rel 1e-12, abs 1e-300	4.66e-21	4.58e-15	4.58e-15	0	72	0
+scalar_pnorm	qnorm.csv	668	3.98e-3	line 269 q (p = 1e-33)	rel 1e-12, abs 1e-300	4.80e-14	3.98e-15	3.98e-15	0	2	0
+scalar_qbeta	qbeta.csv	33400	1.61e-2	line 32048 q: qbeta(8.5e-1, 5, 1000)	rel 1e-12, abs 1e-300	1.16e-16	1.61e-14	1.61e-14	0	4418	0
+scalar_t	pt.csv	24852	5.19e-3	line 4641 log_lower (x = -24.75, df = 100)	rel 1e-12, abs 1e-300	5.26e-13	5.19e-15	5.19e-15	0	148	0
+scalar_t	qt.csv	12692	5.05e-3	line 230 q (p = 1e-72, df = 0.5)	rel 1e-12, abs 1e-300	5.20e128	5.05e-15	5.05e-15	431	36	0
