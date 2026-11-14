@@ -1,0 +1,62 @@
+#!/bin/bash
+# Speed and memory of limma-rust against R limma on the same synthetic data, run natively on
+# this machine. Writes tests-validation/out/benchmark/: the datasets, benchmark.tsv (every
+# timing and peak memory), and benchmark.md with benchmark.svg (the summary and heatmaps).
+#
+# Each (implementation, dataset, pipeline) runs in its own process under /usr/bin/time, which
+# gives that process's peak resident memory. The `load` pipeline only reads the inputs, so the
+# other pipelines' peak minus it is the memory the computation itself added. Stage times are
+# the median of $REPS runs inside the process, so start-up and reading the CSVs are left out.
+# Both sides are single-threaded: R's reference BLAS, and the port has no threads.
+#
+# Timings are noisy and depend on the machine, so unlike scripts/report this does not fail on
+# a change. --update copies the summary into tests-validation/report/ to be committed.
+# Usage: tests-validation/scripts/benchmark [--update]
+#   SIZES="1000 5000 20000 50000" REPS=3 by default.
+set -e
+REPO=$(cd "$(dirname "$0")/../.." && pwd)
+TV="$REPO/tests-validation"
+OUT="$TV/out/benchmark"
+SIZES=${SIZES:-"1000 5000 20000 50000"}
+REPS=${REPS:-3}
+export OMP_NUM_THREADS=1
+
+rm -rf "$OUT"
+mkdir -p "$OUT"
+echo "--- data: $SIZES proteins x 24 samples, complete and 10% missing"
+Rscript "$TV/scripts/bench_data.R" "$OUT/data" $SIZES
+echo "--- :rust: cargo build --release --example bench"
+cargo build --quiet --release --locked --example bench --manifest-path "$REPO/Cargo.toml"
+RUST="$REPO/target/release/examples/bench"
+
+printf "impl\tdataset\tpipeline\tstage\tvalue\n" > "$OUT/benchmark.tsv"
+for dir in "$OUT"/data/*/; do
+  dataset=$(basename "$dir")
+  for pipeline in load fit block; do
+    for impl in R Rust; do
+      echo "    $dataset $pipeline $impl"
+      if [ "$impl" = R ]; then
+        cmd=(Rscript "$TV/scripts/bench.R" "$dir" "$pipeline" "$REPS")
+      else
+        cmd=("$RUST" "$dir" "$pipeline" "$REPS")
+      fi
+      /usr/bin/time -l "${cmd[@]}" >> "$OUT/benchmark.tsv" 2> "$OUT/time.log"
+      awk -v i="$impl" -v d="$dataset" -v p="$pipeline" \
+        '/maximum resident set size/ { printf "%s\t%s\t%s\tpeak_rss_mb\t%.1f\n", i, d, p, $1 / 1048576 }' \
+        "$OUT/time.log" >> "$OUT/benchmark.tsv"
+    done
+  done
+done
+rm "$OUT/time.log"
+
+echo "--- :memo: report"
+machine="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || uname -m), $(uname -s) $(uname -m)"
+rust="$(rustc --version | cut -d' ' -f1-2)"
+Rscript "$TV/scripts/bench_report.R" "$OUT" "$machine" "$rust" "$REPS"
+sed -n '3,9p' "$OUT/benchmark.md"
+
+if [ "$1" = "--update" ]; then
+  mkdir -p "$TV/report"
+  cp "$OUT/benchmark.tsv" "$OUT/benchmark.md" "$OUT/benchmark.svg" "$TV/report/"
+  echo "report/ updated; commit it"
+fi

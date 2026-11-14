@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1070" height="388" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="10" y="16" font-weight="bold">Time: R time / Rust time (green: Rust faster)</text>
+<text x="225" y="40" text-anchor="middle">1,000</text><text x="225" y="54" text-anchor="middle" fill="#555">complete</text>
+<text x="335" y="40" text-anchor="middle">1,000</text><text x="335" y="54" text-anchor="middle" fill="#555">10% missing</text>
+<text x="445" y="40" text-anchor="middle">5,000</text><text x="445" y="54" text-anchor="middle" fill="#555">complete</text>
+<text x="555" y="40" text-anchor="middle">5,000</text><text x="555" y="54" text-anchor="middle" fill="#555">10% missing</text>
+<text x="665" y="40" text-anchor="middle">20,000</text><text x="665" y="54" text-anchor="middle" fill="#555">complete</text>
+<text x="775" y="40" text-anchor="middle">20,000</text><text x="775" y="54" text-anchor="middle" fill="#555">10% missing</text>
+<text x="885" y="40" text-anchor="middle">50,000</text><text x="885" y="54" text-anchor="middle" fill="#555">complete</text>
+<text x="995" y="40" text-anchor="middle">50,000</text><text x="995" y="54" text-anchor="middle" fill="#555">10% missing</text>
+<text x="162" y="79" text-anchor="end">lmFit</text>
+<rect x="170" y="62" width="110" height="26" fill="#9ACFB0" stroke="white" stroke-width="2"/><text x="225" y="79" text-anchor="middle">6.8x</text>
+<rect x="280" y="62" width="110" height="26" fill="#6DBC8F" stroke="white" stroke-width="2"/><text x="335" y="79" text-anchor="middle">18x</text>
+<rect x="390" y="62" width="110" height="26" fill="#ABD6BE" stroke="white" stroke-width="2"/><text x="445" y="79" text-anchor="middle">4.8x</text>
+<rect x="500" y="62" width="110" height="26" fill="#72BE92" stroke="white" stroke-width="2"/><text x="555" y="79" text-anchor="middle">16x</text>
+<rect x="610" y="62" width="110" height="26" fill="#C1E0CE" stroke="white" stroke-width="2"/><text x="665" y="79" text-anchor="middle">3.0x</text>
+<rect x="720" y="62" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="775" y="79" text-anchor="middle">19x</text>
+<rect x="830" y="62" width="110" height="26" fill="#BDDECB" stroke="white" stroke-width="2"/><text x="885" y="79" text-anchor="middle">3.3x</text>
+<rect x="940" y="62" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="995" y="79" text-anchor="middle">20x</text>
+<text x="162" y="105" text-anchor="end">contrasts.fit</text>
+<rect x="170" y="88" width="110" height="26" fill="#7BC199" stroke="white" stroke-width="2"/><text x="225" y="105" text-anchor="middle">14x</text>
+<rect x="280" y="88" width="110" height="26" fill="#7FC39C" stroke="white" stroke-width="2"/><text x="335" y="105" text-anchor="middle">12x</text>
+<rect x="390" y="88" width="110" height="26" fill="#B0D8C1" stroke="white" stroke-width="2"/><text x="445" y="105" text-anchor="middle">4.5x</text>
+<rect x="500" y="88" width="110" height="26" fill="#B4DAC4" stroke="white" stroke-width="2"/><text x="555" y="105" text-anchor="middle">4.1x</text>
+<rect x="610" y="88" width="110" height="26" fill="#D8E9DF" stroke="white" stroke-width="2"/><text x="665" y="105" text-anchor="middle">1.9x</text>
+<rect x="720" y="88" width="110" height="26" fill="#DCEBE2" stroke="white" stroke-width="2"/><text x="775" y="105" text-anchor="middle">1.7x</text>
+<rect x="830" y="88" width="110" height="26" fill="#E9F1EC" stroke="white" stroke-width="2"/><text x="885" y="105" text-anchor="middle">1.3x</text>
+<rect x="940" y="88" width="110" height="26" fill="#E9F1EC" stroke="white" stroke-width="2"/><text x="995" y="105" text-anchor="middle">1.4x</text>
+<text x="162" y="131" text-anchor="end">eBayes</text>
+<rect x="170" y="114" width="110" height="26" fill="#DCEBE2" stroke="white" stroke-width="2"/><text x="225" y="131" text-anchor="middle">1.7x</text>
+<rect x="280" y="114" width="110" height="26" fill="#EEF3F0" stroke="white" stroke-width="2"/><text x="335" y="131" text-anchor="middle">1.2x</text>
+<rect x="390" y="114" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="445" y="131" text-anchor="middle">0.98x</text>
+<rect x="500" y="114" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="555" y="131" text-anchor="middle">1.0x</text>
+<rect x="610" y="114" width="110" height="26" fill="#F5EBEA" stroke="white" stroke-width="2"/><text x="665" y="131" text-anchor="middle">0.79x</text>
+<rect x="720" y="114" width="110" height="26" fill="#F6F3F2" stroke="white" stroke-width="2"/><text x="775" y="131" text-anchor="middle">0.91x</text>
+<rect x="830" y="114" width="110" height="26" fill="#F5EBEA" stroke="white" stroke-width="2"/><text x="885" y="131" text-anchor="middle">0.77x</text>
+<rect x="940" y="114" width="110" height="26" fill="#F6F3F2" stroke="white" stroke-width="2"/><text x="995" y="131" text-anchor="middle">0.94x</text>
+<text x="162" y="157" text-anchor="end">topTable</text>
+<rect x="170" y="140" width="110" height="26" fill="#DCEBE2" stroke="white" stroke-width="2"/><text x="225" y="157" text-anchor="middle">1.7x</text>
+<rect x="280" y="140" width="110" height="26" fill="#DCEBE2" stroke="white" stroke-width="2"/><text x="335" y="157" text-anchor="middle">1.7x</text>
+<rect x="390" y="140" width="110" height="26" fill="#F2F5F3" stroke="white" stroke-width="2"/><text x="445" y="157" text-anchor="middle">1.1x</text>
+<rect x="500" y="140" width="110" height="26" fill="#F2F5F3" stroke="white" stroke-width="2"/><text x="555" y="157" text-anchor="middle">1.1x</text>
+<rect x="610" y="140" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="665" y="157" text-anchor="middle">1.00x</text>
+<rect x="720" y="140" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="775" y="157" text-anchor="middle">0.96x</text>
+<rect x="830" y="140" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="885" y="157" text-anchor="middle">1.0x</text>
+<rect x="940" y="140" width="110" height="26" fill="#F7F7F7" stroke="white" stroke-width="2"/><text x="995" y="157" text-anchor="middle">1.0x</text>
+<text x="162" y="183" text-anchor="end">decideTests</text>
+<rect x="170" y="166" width="110" height="26" fill="#A3D2B7" stroke="white" stroke-width="2"/><text x="225" y="183" text-anchor="middle">5.9x</text>
+<rect x="280" y="166" width="110" height="26" fill="#A3D2B7" stroke="white" stroke-width="2"/><text x="335" y="183" text-anchor="middle">5.8x</text>
+<rect x="390" y="166" width="110" height="26" fill="#E9F1EC" stroke="white" stroke-width="2"/><text x="445" y="183" text-anchor="middle">1.3x</text>
+<rect x="500" y="166" width="110" height="26" fill="#E9F1EC" stroke="white" stroke-width="2"/><text x="555" y="183" text-anchor="middle">1.3x</text>
+<rect x="610" y="166" width="110" height="26" fill="#F5EBEA" stroke="white" stroke-width="2"/><text x="665" y="183" text-anchor="middle">0.79x</text>
+<rect x="720" y="166" width="110" height="26" fill="#F5EFEE" stroke="white" stroke-width="2"/><text x="775" y="183" text-anchor="middle">0.80x</text>
+<rect x="830" y="166" width="110" height="26" fill="#F4E7E6" stroke="white" stroke-width="2"/><text x="885" y="183" text-anchor="middle">0.67x</text>
+<rect x="940" y="166" width="110" height="26" fill="#F5EBEA" stroke="white" stroke-width="2"/><text x="995" y="183" text-anchor="middle">0.77x</text>
+<text x="162" y="209" text-anchor="end">duplicateCorrelation</text>
+<rect x="170" y="192" width="110" height="26" fill="#53B07B" stroke="white" stroke-width="2"/><text x="225" y="209" text-anchor="middle">30x</text>
+<rect x="280" y="192" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="335" y="209" text-anchor="middle">19x</text>
+<rect x="390" y="192" width="110" height="26" fill="#4FAE78" stroke="white" stroke-width="2"/><text x="445" y="209" text-anchor="middle">33x</text>
+<rect x="500" y="192" width="110" height="26" fill="#6DBC8F" stroke="white" stroke-width="2"/><text x="555" y="209" text-anchor="middle">17x</text>
+<rect x="610" y="192" width="110" height="26" fill="#4FAE78" stroke="white" stroke-width="2"/><text x="665" y="209" text-anchor="middle">32x</text>
+<rect x="720" y="192" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="775" y="209" text-anchor="middle">18x</text>
+<rect x="830" y="192" width="110" height="26" fill="#4FAE78" stroke="white" stroke-width="2"/><text x="885" y="209" text-anchor="middle">33x</text>
+<rect x="940" y="192" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="995" y="209" text-anchor="middle">19x</text>
+<text x="162" y="235" text-anchor="end">lmFit(block)</text>
+<rect x="170" y="218" width="110" height="26" fill="#B0D8C1" stroke="white" stroke-width="2"/><text x="225" y="235" text-anchor="middle">4.5x</text>
+<rect x="280" y="218" width="110" height="26" fill="#7FC39C" stroke="white" stroke-width="2"/><text x="335" y="235" text-anchor="middle">12x</text>
+<rect x="390" y="218" width="110" height="26" fill="#CFE5D8" stroke="white" stroke-width="2"/><text x="445" y="235" text-anchor="middle">2.4x</text>
+<rect x="500" y="218" width="110" height="26" fill="#84C5A0" stroke="white" stroke-width="2"/><text x="555" y="235" text-anchor="middle">11x</text>
+<rect x="610" y="218" width="110" height="26" fill="#D8E9DF" stroke="white" stroke-width="2"/><text x="665" y="235" text-anchor="middle">2.0x</text>
+<rect x="720" y="218" width="110" height="26" fill="#84C5A0" stroke="white" stroke-width="2"/><text x="775" y="235" text-anchor="middle">11x</text>
+<rect x="830" y="218" width="110" height="26" fill="#D3E7DC" stroke="white" stroke-width="2"/><text x="885" y="235" text-anchor="middle">2.0x</text>
+<rect x="940" y="218" width="110" height="26" fill="#84C5A0" stroke="white" stroke-width="2"/><text x="995" y="235" text-anchor="middle">11x</text>
+<text x="10" y="280" font-weight="bold">Memory: R peak / Rust peak</text>
+<text x="225" y="304" text-anchor="middle">1,000</text><text x="225" y="318" text-anchor="middle" fill="#555">complete</text>
+<text x="335" y="304" text-anchor="middle">1,000</text><text x="335" y="318" text-anchor="middle" fill="#555">10% missing</text>
+<text x="445" y="304" text-anchor="middle">5,000</text><text x="445" y="318" text-anchor="middle" fill="#555">complete</text>
+<text x="555" y="304" text-anchor="middle">5,000</text><text x="555" y="318" text-anchor="middle" fill="#555">10% missing</text>
+<text x="665" y="304" text-anchor="middle">20,000</text><text x="665" y="318" text-anchor="middle" fill="#555">complete</text>
+<text x="775" y="304" text-anchor="middle">20,000</text><text x="775" y="318" text-anchor="middle" fill="#555">10% missing</text>
+<text x="885" y="304" text-anchor="middle">50,000</text><text x="885" y="318" text-anchor="middle" fill="#555">complete</text>
+<text x="995" y="304" text-anchor="middle">50,000</text><text x="995" y="318" text-anchor="middle" fill="#555">10% missing</text>
+<text x="162" y="343" text-anchor="end">peak memory, fit</text>
+<rect x="170" y="326" width="110" height="26" fill="#53B07B" stroke="white" stroke-width="2"/><text x="225" y="343" text-anchor="middle">29x</text>
+<rect x="280" y="326" width="110" height="26" fill="#4FAE78" stroke="white" stroke-width="2"/><text x="335" y="343" text-anchor="middle">33x</text>
+<rect x="390" y="326" width="110" height="26" fill="#76BF96" stroke="white" stroke-width="2"/><text x="445" y="343" text-anchor="middle">15x</text>
+<rect x="500" y="326" width="110" height="26" fill="#72BE92" stroke="white" stroke-width="2"/><text x="555" y="343" text-anchor="middle">16x</text>
+<rect x="610" y="326" width="110" height="26" fill="#9ACFB0" stroke="white" stroke-width="2"/><text x="665" y="343" text-anchor="middle">6.8x</text>
+<rect x="720" y="326" width="110" height="26" fill="#8CC9A6" stroke="white" stroke-width="2"/><text x="775" y="343" text-anchor="middle">9.1x</text>
+<rect x="830" y="326" width="110" height="26" fill="#ABD6BE" stroke="white" stroke-width="2"/><text x="885" y="343" text-anchor="middle">4.7x</text>
+<rect x="940" y="326" width="110" height="26" fill="#A3D2B7" stroke="white" stroke-width="2"/><text x="995" y="343" text-anchor="middle">5.9x</text>
+<text x="162" y="369" text-anchor="end">peak memory, block</text>
+<rect x="170" y="352" width="110" height="26" fill="#46AB71" stroke="white" stroke-width="2"/><text x="225" y="369" text-anchor="middle">39x</text>
+<rect x="280" y="352" width="110" height="26" fill="#4AAC74" stroke="white" stroke-width="2"/><text x="335" y="369" text-anchor="middle">36x</text>
+<rect x="390" y="352" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="445" y="369" text-anchor="middle">20x</text>
+<rect x="500" y="352" width="110" height="26" fill="#69BA8C" stroke="white" stroke-width="2"/><text x="555" y="369" text-anchor="middle">19x</text>
+<rect x="610" y="352" width="110" height="26" fill="#7FC39C" stroke="white" stroke-width="2"/><text x="665" y="369" text-anchor="middle">12x</text>
+<rect x="720" y="352" width="110" height="26" fill="#84C5A0" stroke="white" stroke-width="2"/><text x="775" y="369" text-anchor="middle">11x</text>
+<rect x="830" y="352" width="110" height="26" fill="#91CBAA" stroke="white" stroke-width="2"/><text x="885" y="369" text-anchor="middle">8.4x</text>
+<rect x="940" y="352" width="110" height="26" fill="#95CDAD" stroke="white" stroke-width="2"/><text x="995" y="369" text-anchor="middle">7.7x</text>
+</svg>
