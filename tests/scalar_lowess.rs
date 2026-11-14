@@ -84,7 +84,7 @@ fn loess_fit_unweighted_matches_lowess_golden_in_original_order() {
     let fitted = loess_fit(&y, &x, None, 0.3, 4);
     let mut o: Vec<usize> = (0..n).collect();
     o.sort_by(|&a, &b| x[a].partial_cmp(&x[b]).unwrap());
-    let mut report = Report::new(file);
+    let mut report = Report::new(&format!("{file} loessFit"));
     for (k, row) in table.rows().enumerate() {
         report.check(
             LOWESS_Y,

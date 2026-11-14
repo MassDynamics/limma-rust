@@ -28,7 +28,7 @@ fn qbeta_matches_the_golden_table() {
         };
         report.check(
             PQ,
-            format_args!("line {} q: qbeta({p}, {a}, {b})", row.line),
+            format_args!("line {} q: qbeta({p:e}, {a}, {b})", row.line),
             qbeta(p, a, b, true, false),
             row.get("q"),
         );

@@ -11,5 +11,6 @@ The Python binding and the Mass Dynamics job layer stay in md-limma.
 
     cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 
-The tests compare against the R goldens committed in `tests/golden/corpus/` (`matrix/` and
-`scalar/`, copied from md-limma). Set `MD_GOLDEN_CORPUS_DIR` to run them against another corpus.
+The tests compare against the R goldens in `tests-validation/` (inputs in `data/`, R's results in
+`expected/`, the R scripts in `scripts/`; see its README). Set `MD_GOLDEN_CORPUS_DIR` to run them
+against another corpus.

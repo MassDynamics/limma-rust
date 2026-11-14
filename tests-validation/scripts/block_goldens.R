@@ -3,13 +3,14 @@
 # Goldens for the block path: duplicateCorrelation(block = ) and lmFit(block = , correlation = )
 # (gls.series), then contrasts.fit -> eBayes (robust x trend) -> topTable / decideTests on that
 # fit, laid out like the matrix goldens (all-missing genes dropped). Contrasts are every pair of design groups. Writes one
-# directory per case next to this script, plus versions.csv. Doubles are printed with %.17g so
+# directory per case under tests-validation/expected/block/ (R's results, plus versions.csv) and
+# tests-validation/data/block/ (the inputs: input_log2, design, contrasts, block). Doubles are printed with %.17g so
 # they round-trip exactly.
 #
 # Run from the limma-rust root in the corpus R image (R 4.5.0, limma 3.68.5, statmod 1.5.2):
 #
 #   docker run --rm --platform linux/amd64 -e LANG=C.UTF-8 -e LC_COLLATE=C -v $PWD:/w -w /w \
-#     md-flexi-r45-limma368 Rscript tests/golden/block/block_goldens.R
+#     md-flexi-r45-limma368 Rscript tests-validation/scripts/block_goldens.R
 #
 # Cases:
 #   techrep_synth     400 genes, 4 conditions x 3 biological samples x 2 technical replicates,
@@ -25,7 +26,8 @@
 
 suppressPackageStartupMessages(library(limma))
 
-out_root <- "tests/golden/block"
+out_root <- "tests-validation/expected/block"
+data_root <- "tests-validation/data/block"
 write.csv(data.frame(package = c("R", "limma", "statmod"),
                      version = c(paste(R.version$major, R.version$minor, sep = "."),
                                  as.character(packageVersion("limma")),
@@ -34,13 +36,22 @@ write.csv(data.frame(package = c("R", "limma", "statmod"),
 
 fmt <- function(x) ifelse(is.na(x), "NA", sprintf("%.17g", x))
 
+# Inputs go to the case's data/ directory, everything else to its expected/ one.
+case_path <- function(dir, file) {
+  if (file %in% c("input_log2.csv", "design.csv", "contrasts.csv", "block.csv")) {
+    dir <- file.path(data_root, basename(dir))
+  }
+  dir.create(dir, showWarnings = FALSE, recursive = TRUE)
+  file.path(dir, file)
+}
+
 write_mat <- function(m, dir, file) {
   m <- as.matrix(m)
   rn <- rownames(m)
   if (is.null(rn)) rn <- as.character(seq_len(nrow(m)))
   out <- data.frame(row = rn, apply(m, 2, fmt), check.names = FALSE, stringsAsFactors = FALSE)
   if (is.null(colnames(m))) colnames(out)[-1] <- paste0("V", seq_len(ncol(m)))
-  write.csv(out, file.path(dir, file), row.names = FALSE, quote = 1)
+  write.csv(out, case_path(dir, file), row.names = FALSE, quote = 1)
 }
 
 # Every pair of design groups (distinct design rows), as coefficient contrasts.
@@ -90,7 +101,7 @@ write_case <- function(id, exprs, design, block) {
   write_mat(exprs, dir, "input_log2.csv")
   write_mat(design, dir, "design.csv")
   write.csv(data.frame(row = as.character(seq_along(block)), block = block),
-            file.path(dir, "block.csv"), row.names = FALSE, quote = 1)
+            case_path(dir, "block.csv"), row.names = FALSE, quote = 1)
 
   dc <- duplicateCorrelation(exprs, design, block = block)
   write_mat(cbind(atanh_correlation = dc$atanh.correlations), dir, "dupcor.csv")
@@ -163,7 +174,7 @@ colnames(exprs) <- sprintf("%s_%s_t%d", cond, bio, sequence(reps))
 write_case("techrep_mixed", exprs, model.matrix(~0 + cond), bio)
 
 # ---- bojkova_pairs -------------------------------------------------------------------------
-mdir <- "tests/golden/corpus/matrix/conditions_only"
+mdir <- "tests-validation/data/matrix/conditions_only"
 rd <- function(f) {
   d <- read.csv(file.path(mdir, f), check.names = FALSE, stringsAsFactors = FALSE)
   m <- as.matrix(d[, -1]); rownames(m) <- d$row; m

@@ -8,15 +8,17 @@
 //! comparator and the per-file error report — plus the checks on the harness itself. Each
 //! port's card adds its own `#[test]` here.
 //!
-//! The tests read the small corpus tier committed at `tests/golden/corpus/` (all of `scalar/`
-//! and `matrix/`), or the full corpus when `MD_GOLDEN_CORPUS_DIR` points at it; see
+//! The tests read the small corpus tier committed at `tests-validation/` (R's results for
+//! `scalar/`, `matrix/` and `block/` in `expected/`, the inputs they were computed from in
+//! `data/`), or the full corpus when `MD_GOLDEN_CORPUS_DIR` points at it; see
 //! [`corpus_root`]. Nothing skips. Run with `--nocapture` to see each file's max relative error:
 //!
 //! ```text
 //! cargo test -p limma-core --test scalar_goldens -- --nocapture
 //! ```
 //!
-//! The goldens are written by `MDFlexiComparisons/data-raw/golden-corpus/scalar_goldens.R`
+//! The goldens are written by `tests-validation/scripts/scalar_goldens.R` (a copy of
+//! `MDFlexiComparisons/data-raw/golden-corpus/scalar_goldens.R`)
 //! with `data.table::fwrite`, which prints a double to 15 significant digits. A golden
 //! therefore sits up to ~1e-15 relatively away from the double R actually computed; that is
 //! the floor on what any port can score here, and the reason every tolerance below is
@@ -27,6 +29,7 @@ pub mod matrix;
 use std::fmt;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use std::{env, fs};
 
 /// Tolerance for one comparison: `|got - want| <= max(abs_floor, rel * |want|)`.
@@ -34,6 +37,18 @@ use std::{env, fs};
 pub struct Tol {
     pub rel: f64,
     pub abs_floor: f64,
+}
+
+/// How the parity report names a bound: `rel 1e-8`, `abs 1e-10`, both, or `exact`.
+impl fmt::Display for Tol {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match (self.rel > 0.0, self.abs_floor > 0.0) {
+            (false, false) => write!(f, "exact"),
+            (true, false) => write!(f, "rel {:e}", self.rel),
+            (false, true) => write!(f, "abs {:e}", self.abs_floor),
+            (true, true) => write!(f, "rel {:e}, abs {:e}", self.rel, self.abs_floor),
+        }
+    }
 }
 
 /// Distribution and gamma-family values: every `p*`/`q*` column, `lgamma`/`digamma`/
@@ -57,6 +72,22 @@ pub const EXACT: Tol = Tol {
 };
 
 pub const CORPUS_ENV: &str = "MD_GOLDEN_CORPUS_DIR";
+
+/// The columns of a parity report row, as [`Report::record`] writes them.
+pub const REPORT_COLUMNS: [&str; 12] = [
+    "test",
+    "comparison",
+    "values_checked",
+    "tolerance_used",
+    "closest_value",
+    "closest_bound",
+    "closest_abs_error",
+    "closest_rel_error",
+    "max_rel_error",
+    "non_finite",
+    "at_floor",
+    "failed",
+];
 
 /// Failures listed in a report's panic message before it falls back to a count.
 pub const MAX_REPORTED_FAILURES: usize = 10;
@@ -94,8 +125,43 @@ pub const SCHEMA: [(&str, &[&str]); 18] = [
     ("trigamma_inverse.csv", &["x", "trigamma_inverse"]),
 ];
 
+/// `tests-validation/`: `data/` holds the inputs, `expected/` R's results, `scripts/` the R that
+/// wrote both.
+pub fn validation_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests-validation")
+}
+
+/// The files a golden case feeds into the port. They live under `data/`; everything else in a
+/// case is an R result and lives under `expected/`.
+pub const INPUT_FILES: [&str; 5] = [
+    "input_log2.csv",
+    "design.csv",
+    "contrasts.csv",
+    "block.csv",
+    "case.json",
+];
+
+/// Where `file` of the case at `dir` (an `expected/` case directory) lives: inputs map to the
+/// same case under `data/`. A full corpus from `MD_GOLDEN_CORPUS_DIR` keeps inputs and results
+/// together, so outside `expected/` the file is read from `dir` itself.
+pub fn case_file(dir: &Path, file: &str) -> PathBuf {
+    let expected = validation_root().join("expected");
+    match dir.strip_prefix(&expected) {
+        Ok(rel) if INPUT_FILES.contains(&file) => {
+            validation_root().join("data").join(rel).join(file)
+        }
+        _ => dir.join(file),
+    }
+}
+
+/// `expected/block/<case>/`. The block cases are not part of the full corpus, so this ignores
+/// `MD_GOLDEN_CORPUS_DIR`.
+pub fn block_dir(case: &str) -> PathBuf {
+    validation_root().join("expected/block").join(case)
+}
+
 /// The corpus root: `MD_GOLDEN_CORPUS_DIR` when set (the full corpus), otherwise the small tier
-/// committed at `tests/golden/corpus/`. A set variable that is not a directory panics rather
+/// committed at `tests-validation/expected/`. A set variable that is not a directory panics rather
 /// than falling back, so a mistyped path cannot quietly shrink the test run.
 pub fn corpus_root() -> PathBuf {
     match env::var_os(CORPUS_ENV).filter(|value| !value.is_empty()) {
@@ -108,7 +174,7 @@ pub fn corpus_root() -> PathBuf {
             );
             root
         }
-        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/golden/corpus"),
+        None => validation_root().join("expected"),
     }
 }
 
@@ -228,22 +294,33 @@ impl Row<'_> {
     }
 }
 
-/// One file's comparisons: the largest relative error, which each card reports per file, and
-/// every value that missed its tolerance.
+/// One file's comparisons: how close any value came to its bound, the largest relative error,
+/// which each card reports per file, and every value that missed its tolerance.
 #[derive(Default)]
 pub struct Report {
     pub file: String,
     pub checked: usize,
+    /// Largest relative error among the values whose bound is relative (see `at_floor`).
     pub max_rel: f64,
-    /// What [`Report::check`] was told the `max_rel` value was, for tracing it back.
+    /// The largest share of its bound any finite value used, `|got - want| / bound`: under 1
+    /// passes, 0 is an exact match.
+    pub max_used: f64,
+    /// What [`Report::check`] was told the `max_used` value was, for tracing it back, and the
+    /// bound it was held to.
     pub worst: String,
+    pub worst_tol: Option<Tol>,
+    /// That value's `|got - want|`, and its `|got - want| / |want|` (`None` when `want` is 0).
+    pub worst_abs: f64,
+    pub worst_rel: Option<f64>,
     /// Goldens that are `±Inf` or `NaN`: matched in kind and sign rather than by tolerance,
     /// and carrying no relative error.
     pub non_finite: usize,
-    /// Goldens that are exactly zero: an error against zero has no relative form either, so
-    /// the largest absolute one is reported on its own.
-    pub zeros: usize,
-    pub max_abs_at_zero: f64,
+    /// Goldens whose bound is the absolute floor: exact zeros, values held to an absolute bound
+    /// only, and goldens so small that `rel * |want|` falls under the floor. Their relative
+    /// error says nothing (a golden of 1e-305 against a port's 0 is 100% off and well inside a
+    /// 1e-300 floor), so it stays out of `max_rel` and the largest absolute one is kept instead.
+    pub at_floor: usize,
+    pub max_abs_at_floor: f64,
     pub failed: usize,
     pub failures: Vec<String>,
 }
@@ -271,15 +348,26 @@ impl Report {
         }
 
         let err = (got - want).abs();
-        if want == 0.0 {
-            self.zeros += 1;
-            self.max_abs_at_zero = self.max_abs_at_zero.max(err);
+        let bound = tol.abs_floor.max(tol.rel * want.abs());
+        if want == 0.0 || tol.rel * want.abs() < tol.abs_floor {
+            self.at_floor += 1;
+            self.max_abs_at_floor = self.max_abs_at_floor.max(err);
         } else {
-            let rel = err / want.abs();
-            if rel > self.max_rel {
-                self.max_rel = rel;
-                self.worst = what.to_string();
-            }
+            self.max_rel = self.max_rel.max(err / want.abs());
+        }
+        let used = if err == 0.0 {
+            0.0
+        } else if bound > 0.0 && !err.is_nan() {
+            err / bound
+        } else {
+            f64::INFINITY
+        };
+        if self.worst_tol.is_none() || used > self.max_used {
+            self.max_used = used;
+            self.worst = what.to_string();
+            self.worst_tol = Some(tol);
+            self.worst_abs = err;
+            self.worst_rel = (want != 0.0).then(|| err / want.abs());
         }
         // Negated rather than `err > limit`, which clippy asks for, because a non-finite
         // `got` against a finite golden gives a NaN `err`: that compares false either way,
@@ -300,11 +388,67 @@ impl Report {
         }
     }
 
-    /// Print this file's max relative error, then panic if any value missed its tolerance.
+    /// Record this file's line for the parity report (see [`Report::record`]), print it, then
+    /// panic if any value missed its tolerance.
     pub fn finish(self) {
+        self.record();
+        self.finish_unrecorded();
+    }
+
+    /// Write this file's numbers to `tests-validation/out/comparisons/<test>__<file>.tsv`, one
+    /// tab-separated row in the columns of [`REPORT_COLUMNS`]. `tests-validation/scripts/report`
+    /// collects these rows into `tests-validation/report/`. The test crate's name keeps two
+    /// test files that compare the same case apart.
+    pub fn record(&self) {
+        let dir = validation_root().join("out/comparisons");
+        fs::create_dir_all(&dir).unwrap_or_else(|e| panic!("cannot create {}: {e}", dir.display()));
+        let test = env!("CARGO_CRATE_NAME");
+        let row = [
+            test.to_owned(),
+            self.file.clone(),
+            self.checked.to_string(),
+            format!("{:.2e}", self.max_used),
+            self.worst.clone(),
+            self.worst_tol.map_or(String::new(), |tol| tol.to_string()),
+            format!("{:.2e}", self.worst_abs),
+            self.worst_rel
+                .map_or("-".to_owned(), |rel| format!("{rel:.2e}")),
+            if self.checked > self.non_finite + self.at_floor {
+                format!("{:.2e}", self.max_rel)
+            } else {
+                "-".to_owned()
+            },
+            self.non_finite.to_string(),
+            self.at_floor.to_string(),
+            self.failed.to_string(),
+        ]
+        .join("\t");
+        // Two reports of one name in one test crate would overwrite each other's row.
+        static RECORDED: Mutex<Vec<String>> = Mutex::new(Vec::new());
+        let mut recorded = RECORDED.lock().unwrap_or_else(|e| e.into_inner());
+        assert!(
+            !recorded.contains(&self.file),
+            "{test}: a second report named {:?}; give it a distinct name",
+            self.file
+        );
+        recorded.push(self.file.clone());
+        let path = dir.join(format!("{test}__{}.tsv", self.file.replace('/', "__")));
+        fs::write(&path, row + "\n")
+            .unwrap_or_else(|e| panic!("cannot write {}: {e}", path.display()));
+    }
+
+    /// [`Report::finish`] without the report row, for the harness's own checks.
+    pub fn finish_unrecorded(self) {
         let mut line = format!("{}: {} values checked", self.file, self.checked);
-        if self.checked > self.non_finite + self.zeros {
-            let _ = write!(line, ", max rel error {:e} at {}", self.max_rel, self.worst);
+        if self.checked > self.non_finite + self.at_floor {
+            let _ = write!(line, ", max rel error {:e}", self.max_rel);
+        }
+        if let Some(tol) = self.worst_tol {
+            let _ = write!(
+                line,
+                ", closest to its bound {} ({:e} of {tol})",
+                self.worst, self.max_used
+            );
         }
         if self.non_finite > 0 {
             let _ = write!(
@@ -313,11 +457,11 @@ impl Report {
                 self.non_finite
             );
         }
-        if self.zeros > 0 {
+        if self.at_floor > 0 {
             let _ = write!(
                 line,
-                ", {} zero goldens within {:e}",
-                self.zeros, self.max_abs_at_zero
+                ", {} goldens on the absolute floor within {:e}",
+                self.at_floor, self.max_abs_at_floor
             );
         }
         println!("{line}");

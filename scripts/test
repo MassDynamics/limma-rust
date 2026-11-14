@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rust tests (unit plus the scalar and matrix R goldens in tests/golden/corpus/) in the Rust
+# Rust tests (unit plus the R goldens in tests-validation/) in the Rust
 # image, once in the debug profile and once in the release profile the consumers ship. The tracked
 # files are streamed into the container as a tar on stdin (a bind mount comes up empty on CI
 # agents whose Docker daemon cannot see the checkout).

@@ -1,0 +1,153 @@
+#!/bin/bash
+# Parity report: every R golden comparison run in the Rust image (linux/amd64, release, as CI and
+# the consumers run it), one row per compared file, written to tests-validation/out/ as
+# parity.tsv (the numbers), parity.md (the same as a table, with what each column means) and
+# parity.svg (the chart parity.md shows: how much of its bound each comparison used).
+#
+# Fails if any value missed its tolerance, or if parity.tsv differs from the committed
+# tests-validation/report/parity.tsv, so a change that moves any result shows up even when it
+# stays inside tolerance. Once such a change is reviewed, rerun with --update to copy the new
+# report into report/ and commit it with the change.
+#
+# Max errors differ in their last digits between macOS arm64 and linux amd64, which is why the
+# report always comes from the image and never from a local cargo test. Like scripts/test it
+# streams tracked files only, so `git add` new files first.
+# Usage: tests-validation/scripts/report [--update]
+set -e
+REPO=$(cd "$(dirname "$0")/../.." && pwd)
+TV="$REPO/tests-validation"
+export COPYFILE_DISABLE=1   # macOS tar: no AppleDouble ._ files in the stream
+RUST_IMAGE=rust:1.95.0      # keep equal to rust-toolchain.toml
+COLUMNS="test	comparison	values_checked	tolerance_used	closest_value	closest_bound	closest_abs_error	closest_rel_error	max_rel_error	non_finite	at_floor	failed"
+
+rm -rf "$TV/out"
+mkdir -p "$TV/out"
+
+echo "--- :rust: cargo test --release (log in tests-validation/out/cargo-test.log)"
+tests=0
+git -C "$REPO" ls-files -z | tar -C "$REPO" --null -T - -cf - \
+  | docker run -i --rm --platform linux/amd64 "$RUST_IMAGE" sh -c \
+    "mkdir /work && cd /work && tar -xf - && cargo test --release --locked --no-fail-fast >&2; \
+     s=\$?; cat tests-validation/out/comparisons/*.tsv; exit \$s" \
+    > "$TV/out/rows.tsv" 2> "$TV/out/cargo-test.log" || tests=$?
+
+{ echo "$COLUMNS"; sort "$TV/out/rows.tsv"; } > "$TV/out/parity.tsv"
+rm "$TV/out/rows.tsv"
+
+# The chart: one row per comparison, coloured by the share of its bound the closest value used,
+# with a bar on a log scale from 1e-16 to the bound.
+awk -F'\t' '
+  function colour(u) {
+    if (u > 1) return "#d73027"; if (u > 0.5) return "#fdae61"; if (u > 0.1) return "#fee08b"
+    if (u > 1e-3) return "#a6d96a"; if (u > 1e-6) return "#66bd63"; return "#1a9850"
+  }
+  function esc(t) { gsub(/&/, "\\&amp;", t); gsub(/</, "\\&lt;", t); gsub(/>/, "\\&gt;", t); return t }
+  NR == 1 { next }
+  { test[++n] = $1; comp[n] = $2; used[n] = $4 + 0 }
+  END {
+    lw = 420; cx = lw + 10; bx = cx + 80; bw = 480; h = 18; top = 96
+    rows = n; for (i = 1; i <= n; i++) if (test[i] != test[i - 1]) rows++
+    printf "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" font-family=\"sans-serif\" font-size=\"11\">\n", bx + bw + 40, top + rows * h + 10
+    print "<rect width=\"100%\" height=\"100%\" fill=\"white\"/>"
+    print "<text x=\"10\" y=\"20\" font-size=\"14\" font-weight=\"bold\">Share of its bound used by the closest value (under 1 passes)</text>"
+    split("0|1e-6|1e-3|0.1|0.5|1|fails", lab, "|"); split("0 1e-4 0.01 0.3 0.8 2", mid, " ")
+    for (k = 1; k <= 6; k++) {
+      x = 10 + (k - 1) * 120
+      printf "<rect x=\"%d\" y=\"32\" width=\"14\" height=\"12\" fill=\"%s\"/>", x, colour(mid[k])
+      printf "<text x=\"%d\" y=\"42\">%s</text>\n", x + 18, (k == 6 ? "over 1, fails" : (k == 1 ? "up to 1e-6" : "up to " lab[k + 1]))
+    }
+    for (e = -16; e <= 0; e += 4) {
+      x = bx + (e + 16) / 16 * bw
+      printf "<line x1=\"%.1f\" y1=\"%d\" x2=\"%.1f\" y2=\"%d\" stroke=\"%s\"/>", x, top - 8, x, top + rows * h, (e == 0 ? "#d73027" : "#ddd")
+      printf "<text x=\"%.1f\" y=\"%d\" text-anchor=\"middle\">%s</text>\n", x, top - 12, (e == 0 ? "1 = bound" : "1e" e)
+    }
+    printf "<text x=\"%d\" y=\"%d\" text-anchor=\"middle\">share</text>\n", cx + 35, top - 12
+    y = top
+    for (i = 1; i <= n; i++) {
+      if (test[i] != test[i - 1]) { printf "<text x=\"10\" y=\"%d\" font-weight=\"bold\">%s</text>\n", y + 13, esc(test[i]); y += h }
+      u = used[i]; c = colour(u)
+      printf "<text x=\"20\" y=\"%d\">%s</text>", y + 13, esc(comp[i])
+      printf "<rect x=\"%d\" y=\"%d\" width=\"70\" height=\"%d\" fill=\"%s\"/>", cx, y + 1, h - 2, c
+      printf "<text x=\"%d\" y=\"%d\" text-anchor=\"middle\">%s</text>", cx + 35, y + 13, (u == 0 ? "0, exact" : sprintf("%.1e", u))
+      if (u > 0) {
+        w = (log(u) / log(10) + 16) / 16 * bw; if (w < 2) w = 2; if (w > bw + 20) w = bw + 20
+        printf "<rect x=\"%d\" y=\"%d\" width=\"%.1f\" height=\"%d\" fill=\"%s\"/>", bx, y + 4, w, h - 8, c
+      }
+      print ""; y += h
+    }
+    print "</svg>"
+  }' "$TV/out/parity.tsv" > "$TV/out/parity.svg"
+
+# The markdown view: what was compared, against which R, what each column means, and the
+# per-file numbers.
+commit=$(git -C "$REPO" rev-parse --short HEAD)
+git -C "$REPO" diff --quiet HEAD || commit="$commit plus uncommitted changes"
+r_versions=$(tail -n +2 "$TV/expected/block/versions.csv" | tr -d '"' | tr ',' ' ' | paste -sd ',' - | sed 's/,/, /g')
+awk -F'\t' -v commit="$commit" -v r="$r_versions" -v image="$RUST_IMAGE" '
+  function num(v) { return (v + 0 == 0 && v != "-") ? "0" : v }
+  NR == 1 { next }
+  { rows[NR] = $0; n++; values += $3; failed += $12; if ($4 + 0 >= top) { top = $4 + 0; topname = $1 " " $2 } }
+  END {
+    print "# limma-rust parity with R limma\n"
+    print "- limma-rust: " commit
+    print "- R reference: " r " (tests-validation/expected/)"
+    print "- Rust run: " image ", linux/amd64, release"
+    print "- " n " compared files, " values " values, " failed " outside their bound"
+    printf "- Closest any value came to its bound: %s of it (%s)\n\n", num(sprintf("%.2e", top)), topname
+    print "![Share of its bound used by each comparison](parity.svg)\n"
+    print "## How to read this\n"
+    print "For every value, `R` is the double read from the golden CSV and `Rust` the double the port"
+    print "computed. Absolute error is `|Rust - R|`; relative error is that divided by `|R|`; the bound"
+    print "is `max(abs, rel × |R|)` and the share used is absolute error divided by the bound. All of"
+    print "it is plain f64 arithmetic in `Report::check` (`tests/common/mod.rs`).\n"
+    print "Each row is one comparison of limma-rust against a result R wrote, and every number in it"
+    print "is checked against a pass bound: `|Rust - R| <= max(abs, rel × |R|)`. The bound differs by"
+    print "measure (p-values, lods, coefficients and the scalar functions each have their own), so the"
+    print "row shows the bound that applied to its closest value. The bounds are set at the top of each"
+    print "test file in `tests/`.\n"
+    print "| Column | Meaning |"
+    print "|---|---|"
+    print "| test | The Rust test that ran the comparison, `tests/<test>.rs`. |"
+    print "| comparison | What R result it was compared against: `<case>/<analysis>` under `expected/matrix` or `expected/block`, or a table under `expected/scalar`. |"
+    print "| values | How many numbers were compared. |"
+    print "| share of bound used | For each value, its error divided by its pass bound; the row shows the largest. Under 1 passes, 0 means every value matched R exactly, 0.05 means the worst value used 5% of what it was allowed. This is what the chart colours. |"
+    print "| closest value | The value with that largest share. Matrix results are named like R: `coefficients[242,condC]` is gene 242 and column `condC` (1-based), `toptable_3[69].CI.L` is row 69 of the third topTable. Scalar results give the CSV line and the R call, `line 21 trigamma(100000)`. |"
+    print "| its bound | The pass bound for that value: `rel 1e-8` is relative to the R value, `abs 1e-10` is absolute, both means whichever is larger, `exact` means bit for bit. |"
+    print "| abs error | That value'"'"'s absolute error, `|Rust - R|`. |"
+    print "| rel error | That value'"'"'s relative error, `|Rust - R| / |R|`; `-` when R is exactly 0. |"
+    print "| max rel error | Over the whole comparison, the largest `|Rust - R| / |R|` over the values held to a relative bound. Values on the floor (next column) are left out. |"
+    print "| non-finite | R results that are Inf, -Inf or NaN. These must match in kind and sign. |"
+    print "| on floor | Values whose bound is the absolute part: R results that are exactly 0, measures held to an absolute bound only (coefficients, confidence limits), and results so small that `rel × |R|` falls below the floor. Their relative error carries no meaning: in the scalar tables a probability R prints as 1.2e-305 and Rust returns as 0 is 100% off relatively, yet 1.2e-305 apart, far inside the 1e-300 floor. |"
+    print "| failed | Values outside their bound. Must be 0. |\n"
+    print "## Results\n"
+    print "| test | comparison | values | share of bound used | closest value | its bound | abs error | rel error | max rel error | non-finite | on floor | failed |"
+    print "|---|---|---:|---:|---|---|---:|---:|---:|---:|---:|---:|"
+    for (i = 2; i <= NR; i++) {
+      split(rows[i], f, "\t")
+      printf "| %s | %s | %s | %s | `%s` | %s | %s | %s | %s | %s | %s | %s |\n", f[1], f[2], f[3], num(f[4]), f[5], f[6], num(f[7]), num(f[8]), num(f[9]), f[10], f[11], f[12]
+    }
+  }' "$TV/out/parity.tsv" > "$TV/out/parity.md"
+
+echo "--- :memo: report"
+head -7 "$TV/out/parity.md" | tail -5
+
+if [ "$tests" -ne 0 ]; then
+  grep -E "^test .* FAILED|panicked" "$TV/out/cargo-test.log" || true
+  echo "cargo test failed (exit $tests); see tests-validation/out/cargo-test.log" >&2
+  exit 1
+fi
+
+if [ "$1" = "--update" ]; then
+  mkdir -p "$TV/report"
+  cp "$TV/out/parity.tsv" "$TV/out/parity.md" "$TV/out/parity.svg" "$TV/report/"
+  echo "report/ updated; commit it with the change"
+elif [ ! -f "$TV/report/parity.tsv" ]; then
+  echo "no committed report/parity.tsv; run with --update to create it" >&2
+  exit 1
+elif ! diff "$TV/report/parity.tsv" "$TV/out/parity.tsv"; then
+  echo "results differ from the committed report (diff above: < committed, > this run)." >&2
+  echo "If the change is intended, rerun with --update and commit report/." >&2
+  exit 1
+else
+  echo "matches the committed report"
+fi

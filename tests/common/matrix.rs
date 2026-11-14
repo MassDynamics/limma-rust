@@ -4,7 +4,7 @@
 
 use std::path::{Path, PathBuf};
 
-use super::corpus_root;
+use super::{case_file, corpus_root};
 
 pub struct Matrix {
     pub file: String,
@@ -18,7 +18,7 @@ pub struct Matrix {
 
 impl Matrix {
     pub fn read(dir: &Path, file: &str) -> Matrix {
-        let path = dir.join(file);
+        let path = case_file(dir, file);
         let mut reader = csv::Reader::from_path(&path)
             .unwrap_or_else(|e| panic!("cannot open {}: {e}", path.display()));
         let headers: Vec<String> = reader

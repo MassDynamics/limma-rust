@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1030" height="1546" font-family="sans-serif" font-size="11">
+<rect width="100%" height="100%" fill="white"/>
+<text x="10" y="20" font-size="14" font-weight="bold">Share of its bound used by the closest value (under 1 passes)</text>
+<rect x="10" y="32" width="14" height="12" fill="#1a9850"/><text x="28" y="42">up to 1e-6</text>
+<rect x="130" y="32" width="14" height="12" fill="#66bd63"/><text x="148" y="42">up to 1e-3</text>
+<rect x="250" y="32" width="14" height="12" fill="#a6d96a"/><text x="268" y="42">up to 0.1</text>
+<rect x="370" y="32" width="14" height="12" fill="#fee08b"/><text x="388" y="42">up to 0.5</text>
+<rect x="490" y="32" width="14" height="12" fill="#fdae61"/><text x="508" y="42">up to 1</text>
+<rect x="610" y="32" width="14" height="12" fill="#d73027"/><text x="628" y="42">over 1, fails</text>
+<line x1="510.0" y1="88" x2="510.0" y2="1536" stroke="#ddd"/><text x="510.0" y="84" text-anchor="middle">1e-16</text>
+<line x1="630.0" y1="88" x2="630.0" y2="1536" stroke="#ddd"/><text x="630.0" y="84" text-anchor="middle">1e-12</text>
+<line x1="750.0" y1="88" x2="750.0" y2="1536" stroke="#ddd"/><text x="750.0" y="84" text-anchor="middle">1e-8</text>
+<line x1="870.0" y1="88" x2="870.0" y2="1536" stroke="#ddd"/><text x="870.0" y="84" text-anchor="middle">1e-4</text>
+<line x1="990.0" y1="88" x2="990.0" y2="1536" stroke="#d73027"/><text x="990.0" y="84" text-anchor="middle">1 = bound</text>
+<text x="465" y="84" text-anchor="middle">share</text>
+<text x="10" y="109" font-weight="bold">block_goldens</text>
+<text x="20" y="127">bojkova_pairs/dupcor</text><rect x="430" y="115" width="70" height="16" fill="#66bd63"/><text x="465" y="127" text-anchor="middle">3.0e-05</text><rect x="510" y="118" width="344.5" height="10" fill="#66bd63"/>
+<text x="20" y="145">bojkova_pairs/lmfit</text><rect x="430" y="133" width="70" height="16" fill="#1a9850"/><text x="465" y="145" text-anchor="middle">4.7e-08</text><rect x="510" y="136" width="260.1" height="10" fill="#1a9850"/>
+<text x="20" y="163">techrep_mixed/dupcor</text><rect x="430" y="151" width="70" height="16" fill="#66bd63"/><text x="465" y="163" text-anchor="middle">5.5e-06</text><rect x="510" y="154" width="322.3" height="10" fill="#66bd63"/>
+<text x="20" y="181">techrep_mixed/lmfit</text><rect x="430" y="169" width="70" height="16" fill="#66bd63"/><text x="465" y="181" text-anchor="middle">5.3e-05</text><rect x="510" y="172" width="351.8" height="10" fill="#66bd63"/>
+<text x="20" y="199">techrep_synth/dupcor</text><rect x="430" y="187" width="70" height="16" fill="#66bd63"/><text x="465" y="199" text-anchor="middle">3.8e-06</text><rect x="510" y="190" width="317.2" height="10" fill="#66bd63"/>
+<text x="20" y="217">techrep_synth/lmfit</text><rect x="430" y="205" width="70" height="16" fill="#1a9850"/><text x="465" y="217" text-anchor="middle">4.4e-08</text><rect x="510" y="208" width="259.4" height="10" fill="#1a9850"/>
+<text x="20" y="235">techrep_synth_na/dupcor</text><rect x="430" y="223" width="70" height="16" fill="#66bd63"/><text x="465" y="235" text-anchor="middle">1.4e-05</text><rect x="510" y="226" width="334.5" height="10" fill="#66bd63"/>
+<text x="20" y="253">techrep_synth_na/lmfit</text><rect x="430" y="241" width="70" height="16" fill="#66bd63"/><text x="465" y="253" text-anchor="middle">3.6e-05</text><rect x="510" y="244" width="346.5" height="10" fill="#66bd63"/>
+<text x="10" y="271" font-weight="bold">matrix_ebayes</text>
+<text x="20" y="289">bojkova_pairs/contrasts</text><rect x="430" y="277" width="70" height="16" fill="#1a9850"/><text x="465" y="289" text-anchor="middle">0, exact</text>
+<text x="20" y="307">bojkova_pairs/ebayes_robFALSE_trendFALSE</text><rect x="430" y="295" width="70" height="16" fill="#a6d96a"/><text x="465" y="307" text-anchor="middle">3.5e-03</text><rect x="510" y="298" width="406.4" height="10" fill="#a6d96a"/>
+<text x="20" y="325">bojkova_pairs/ebayes_robFALSE_trendTRUE</text><rect x="430" y="313" width="70" height="16" fill="#fee08b"/><text x="465" y="325" text-anchor="middle">1.1e-01</text><rect x="510" y="316" width="451.1" height="10" fill="#fee08b"/>
+<text x="20" y="343">bojkova_pairs/ebayes_robTRUE_trendFALSE</text><rect x="430" y="331" width="70" height="16" fill="#a6d96a"/><text x="465" y="343" text-anchor="middle">3.5e-03</text><rect x="510" y="334" width="406.4" height="10" fill="#a6d96a"/>
+<text x="20" y="361">bojkova_pairs/ebayes_robTRUE_trendTRUE</text><rect x="430" y="349" width="70" height="16" fill="#a6d96a"/><text x="465" y="361" text-anchor="middle">5.8e-02</text><rect x="510" y="352" width="442.9" height="10" fill="#a6d96a"/>
+<text x="20" y="379">conditions_categorical_numeric_covariates/ebayes_robFALSE_trendFALSE</text><rect x="430" y="367" width="70" height="16" fill="#a6d96a"/><text x="465" y="379" text-anchor="middle">6.8e-02</text><rect x="510" y="370" width="444.9" height="10" fill="#a6d96a"/>
+<text x="20" y="397">conditions_categorical_numeric_covariates/ebayes_robFALSE_trendTRUE</text><rect x="430" y="385" width="70" height="16" fill="#a6d96a"/><text x="465" y="397" text-anchor="middle">6.8e-02</text><rect x="510" y="388" width="444.9" height="10" fill="#a6d96a"/>
+<text x="20" y="415">conditions_categorical_numeric_covariates/ebayes_robTRUE_trendFALSE</text><rect x="430" y="403" width="70" height="16" fill="#a6d96a"/><text x="465" y="415" text-anchor="middle">6.8e-02</text><rect x="510" y="406" width="444.9" height="10" fill="#a6d96a"/>
+<text x="20" y="433">conditions_categorical_numeric_covariates/ebayes_robTRUE_trendTRUE</text><rect x="430" y="421" width="70" height="16" fill="#a6d96a"/><text x="465" y="433" text-anchor="middle">6.8e-02</text><rect x="510" y="424" width="444.9" height="10" fill="#a6d96a"/>
+<text x="20" y="451">conditions_numeric_covariate/ebayes_robFALSE_trendFALSE</text><rect x="430" y="439" width="70" height="16" fill="#a6d96a"/><text x="465" y="451" text-anchor="middle">4.7e-02</text><rect x="510" y="442" width="440.1" height="10" fill="#a6d96a"/>
+<text x="20" y="469">conditions_numeric_covariate/ebayes_robFALSE_trendTRUE</text><rect x="430" y="457" width="70" height="16" fill="#a6d96a"/><text x="465" y="469" text-anchor="middle">4.7e-02</text><rect x="510" y="460" width="440.1" height="10" fill="#a6d96a"/>
+<text x="20" y="487">conditions_numeric_covariate/ebayes_robTRUE_trendFALSE</text><rect x="430" y="475" width="70" height="16" fill="#a6d96a"/><text x="465" y="487" text-anchor="middle">4.7e-02</text><rect x="510" y="478" width="440.1" height="10" fill="#a6d96a"/>
+<text x="20" y="505">conditions_numeric_covariate/ebayes_robTRUE_trendTRUE</text><rect x="430" y="493" width="70" height="16" fill="#a6d96a"/><text x="465" y="505" text-anchor="middle">6.6e-02</text><rect x="510" y="496" width="444.5" height="10" fill="#a6d96a"/>
+<text x="20" y="523">conditions_only/ebayes_robFALSE_trendFALSE</text><rect x="430" y="511" width="70" height="16" fill="#a6d96a"/><text x="465" y="523" text-anchor="middle">9.3e-03</text><rect x="510" y="514" width="419.0" height="10" fill="#a6d96a"/>
+<text x="20" y="541">conditions_only/ebayes_robFALSE_trendTRUE</text><rect x="430" y="529" width="70" height="16" fill="#fee08b"/><text x="465" y="541" text-anchor="middle">1.9e-01</text><rect x="510" y="532" width="458.2" height="10" fill="#fee08b"/>
+<text x="20" y="559">conditions_only/ebayes_robTRUE_trendFALSE</text><rect x="430" y="547" width="70" height="16" fill="#a6d96a"/><text x="465" y="559" text-anchor="middle">9.3e-03</text><rect x="510" y="550" width="419.0" height="10" fill="#a6d96a"/>
+<text x="20" y="577">conditions_only/ebayes_robTRUE_trendTRUE</text><rect x="430" y="565" width="70" height="16" fill="#a6d96a"/><text x="465" y="577" text-anchor="middle">2.4e-02</text><rect x="510" y="568" width="431.2" height="10" fill="#a6d96a"/>
+<text x="20" y="595">techrep_mixed/contrasts</text><rect x="430" y="583" width="70" height="16" fill="#66bd63"/><text x="465" y="595" text-anchor="middle">7.1e-05</text><rect x="510" y="586" width="355.6" height="10" fill="#66bd63"/>
+<text x="20" y="613">techrep_mixed/ebayes_robFALSE_trendFALSE</text><rect x="430" y="601" width="70" height="16" fill="#a6d96a"/><text x="465" y="613" text-anchor="middle">9.3e-03</text><rect x="510" y="604" width="419.0" height="10" fill="#a6d96a"/>
+<text x="20" y="631">techrep_mixed/ebayes_robFALSE_trendTRUE</text><rect x="430" y="619" width="70" height="16" fill="#a6d96a"/><text x="465" y="631" text-anchor="middle">5.5e-02</text><rect x="510" y="622" width="442.2" height="10" fill="#a6d96a"/>
+<text x="20" y="649">techrep_mixed/ebayes_robTRUE_trendFALSE</text><rect x="430" y="637" width="70" height="16" fill="#a6d96a"/><text x="465" y="649" text-anchor="middle">3.6e-02</text><rect x="510" y="640" width="436.5" height="10" fill="#a6d96a"/>
+<text x="20" y="667">techrep_mixed/ebayes_robTRUE_trendTRUE</text><rect x="430" y="655" width="70" height="16" fill="#a6d96a"/><text x="465" y="667" text-anchor="middle">3.9e-02</text><rect x="510" y="658" width="437.6" height="10" fill="#a6d96a"/>
+<text x="20" y="685">techrep_synth/contrasts</text><rect x="430" y="673" width="70" height="16" fill="#1a9850"/><text x="465" y="685" text-anchor="middle">0, exact</text>
+<text x="20" y="703">techrep_synth/ebayes_robFALSE_trendFALSE</text><rect x="430" y="691" width="70" height="16" fill="#66bd63"/><text x="465" y="703" text-anchor="middle">8.5e-06</text><rect x="510" y="694" width="327.8" height="10" fill="#66bd63"/>
+<text x="20" y="721">techrep_synth/ebayes_robFALSE_trendTRUE</text><rect x="430" y="709" width="70" height="16" fill="#66bd63"/><text x="465" y="721" text-anchor="middle">1.7e-05</text><rect x="510" y="712" width="336.7" height="10" fill="#66bd63"/>
+<text x="20" y="739">techrep_synth/ebayes_robTRUE_trendFALSE</text><rect x="430" y="727" width="70" height="16" fill="#66bd63"/><text x="465" y="739" text-anchor="middle">4.4e-06</text><rect x="510" y="730" width="319.4" height="10" fill="#66bd63"/>
+<text x="20" y="757">techrep_synth/ebayes_robTRUE_trendTRUE</text><rect x="430" y="745" width="70" height="16" fill="#66bd63"/><text x="465" y="757" text-anchor="middle">9.1e-05</text><rect x="510" y="748" width="358.7" height="10" fill="#66bd63"/>
+<text x="20" y="775">techrep_synth_na/contrasts</text><rect x="430" y="763" width="70" height="16" fill="#66bd63"/><text x="465" y="775" text-anchor="middle">2.9e-05</text><rect x="510" y="766" width="343.8" height="10" fill="#66bd63"/>
+<text x="20" y="793">techrep_synth_na/ebayes_robFALSE_trendFALSE</text><rect x="430" y="781" width="70" height="16" fill="#66bd63"/><text x="465" y="793" text-anchor="middle">9.7e-04</text><rect x="510" y="784" width="389.6" height="10" fill="#66bd63"/>
+<text x="20" y="811">techrep_synth_na/ebayes_robFALSE_trendTRUE</text><rect x="430" y="799" width="70" height="16" fill="#a6d96a"/><text x="465" y="811" text-anchor="middle">4.0e-03</text><rect x="510" y="802" width="408.2" height="10" fill="#a6d96a"/>
+<text x="20" y="829">techrep_synth_na/ebayes_robTRUE_trendFALSE</text><rect x="430" y="817" width="70" height="16" fill="#66bd63"/><text x="465" y="829" text-anchor="middle">9.7e-04</text><rect x="510" y="820" width="389.6" height="10" fill="#66bd63"/>
+<text x="20" y="847">techrep_synth_na/ebayes_robTRUE_trendTRUE</text><rect x="430" y="835" width="70" height="16" fill="#a6d96a"/><text x="465" y="847" text-anchor="middle">4.0e-03</text><rect x="510" y="838" width="408.2" height="10" fill="#a6d96a"/>
+<text x="10" y="865" font-weight="bold">matrix_lmfit</text>
+<text x="20" y="883">conditions_categorical_numeric_covariates/contrasts</text><rect x="430" y="871" width="70" height="16" fill="#66bd63"/><text x="465" y="883" text-anchor="middle">5.8e-04</text><rect x="510" y="874" width="383.0" height="10" fill="#66bd63"/>
+<text x="20" y="901">conditions_categorical_numeric_covariates/lmfit</text><rect x="430" y="889" width="70" height="16" fill="#66bd63"/><text x="465" y="901" text-anchor="middle">8.0e-04</text><rect x="510" y="892" width="387.1" height="10" fill="#66bd63"/>
+<text x="20" y="919">conditions_numeric_covariate/contrasts</text><rect x="430" y="907" width="70" height="16" fill="#66bd63"/><text x="465" y="919" text-anchor="middle">6.2e-04</text><rect x="510" y="910" width="383.8" height="10" fill="#66bd63"/>
+<text x="20" y="937">conditions_numeric_covariate/lmfit</text><rect x="430" y="925" width="70" height="16" fill="#66bd63"/><text x="465" y="937" text-anchor="middle">8.5e-04</text><rect x="510" y="928" width="387.9" height="10" fill="#66bd63"/>
+<text x="20" y="955">conditions_only/contrasts</text><rect x="430" y="943" width="70" height="16" fill="#66bd63"/><text x="465" y="955" text-anchor="middle">6.0e-04</text><rect x="510" y="946" width="383.4" height="10" fill="#66bd63"/>
+<text x="20" y="973">conditions_only/lmfit</text><rect x="430" y="961" width="70" height="16" fill="#66bd63"/><text x="465" y="973" text-anchor="middle">7.3e-04</text><rect x="510" y="964" width="385.9" height="10" fill="#66bd63"/>
+<text x="10" y="991" font-weight="bold">scalar_f</text>
+<text x="20" y="1009">pf.csv</text><rect x="430" y="997" width="70" height="16" fill="#a6d96a"/><text x="465" y="1009" text-anchor="middle">4.7e-03</text><rect x="510" y="1000" width="410.2" height="10" fill="#a6d96a"/>
+<text x="20" y="1027">qf.csv</text><rect x="430" y="1015" width="70" height="16" fill="#a6d96a"/><text x="465" y="1027" text-anchor="middle">6.7e-02</text><rect x="510" y="1018" width="444.8" height="10" fill="#a6d96a"/>
+<text x="10" y="1045" font-weight="bold">scalar_fitfdist</text>
+<text x="20" y="1063">fitfdist_n2000_df10</text><rect x="430" y="1051" width="70" height="16" fill="#1a9850"/><text x="465" y="1063" text-anchor="middle">7.5e-08</text><rect x="510" y="1054" width="266.2" height="10" fill="#1a9850"/>
+<text x="20" y="1081">fitfdist_n200_df4</text><rect x="430" y="1069" width="70" height="16" fill="#1a9850"/><text x="465" y="1081" text-anchor="middle">4.5e-08</text><rect x="510" y="1072" width="259.5" height="10" fill="#1a9850"/>
+<text x="20" y="1099">fitfdist_n5000_df3</text><rect x="430" y="1087" width="70" height="16" fill="#1a9850"/><text x="465" y="1099" text-anchor="middle">5.7e-08</text><rect x="510" y="1090" width="262.6" height="10" fill="#1a9850"/>
+<text x="10" y="1117" font-weight="bold">scalar_gamma</text>
+<text x="20" y="1135">gamma_family.csv</text><rect x="430" y="1123" width="70" height="16" fill="#a6d96a"/><text x="465" y="1135" text-anchor="middle">3.6e-03</text><rect x="510" y="1126" width="406.5" height="10" fill="#a6d96a"/>
+<text x="20" y="1153">trigamma_inverse.csv</text><rect x="430" y="1141" width="70" height="16" fill="#a6d96a"/><text x="465" y="1153" text-anchor="middle">4.2e-03</text><rect x="510" y="1144" width="408.6" height="10" fill="#a6d96a"/>
+<text x="10" y="1171" font-weight="bold">scalar_lowess</text>
+<text x="20" y="1189">lowess_n200_f0p3.csv</text><rect x="430" y="1177" width="70" height="16" fill="#a6d96a"/><text x="465" y="1189" text-anchor="middle">6.8e-03</text><rect x="510" y="1180" width="415.0" height="10" fill="#a6d96a"/>
+<text x="20" y="1207">lowess_n200_f0p3.csv loessFit</text><rect x="430" y="1195" width="70" height="16" fill="#a6d96a"/><text x="465" y="1207" text-anchor="middle">6.8e-03</text><rect x="510" y="1198" width="415.0" height="10" fill="#a6d96a"/>
+<text x="20" y="1225">lowess_n3000_f0p5.csv</text><rect x="430" y="1213" width="70" height="16" fill="#a6d96a"/><text x="465" y="1225" text-anchor="middle">7.8e-03</text><rect x="510" y="1216" width="416.7" height="10" fill="#a6d96a"/>
+<text x="20" y="1243">lowess_n500_f0p5.csv</text><rect x="430" y="1231" width="70" height="16" fill="#a6d96a"/><text x="465" y="1243" text-anchor="middle">2.3e-03</text><rect x="510" y="1234" width="400.9" height="10" fill="#a6d96a"/>
+<text x="20" y="1261">lowess_n50_f0p667.csv</text><rect x="430" y="1249" width="70" height="16" fill="#a6d96a"/><text x="465" y="1261" text-anchor="middle">1.7e-03</text><rect x="510" y="1252" width="397.0" height="10" fill="#a6d96a"/>
+<text x="10" y="1279" font-weight="bold">scalar_pbeta</text>
+<text x="20" y="1297">pbeta.csv</text><rect x="430" y="1285" width="70" height="16" fill="#a6d96a"/><text x="465" y="1297" text-anchor="middle">4.8e-03</text><rect x="510" y="1288" width="410.5" height="10" fill="#a6d96a"/>
+<text x="10" y="1315" font-weight="bold">scalar_pgamma</text>
+<text x="20" y="1333">pchisq.csv</text><rect x="430" y="1321" width="70" height="16" fill="#a6d96a"/><text x="465" y="1333" text-anchor="middle">4.1e-03</text><rect x="510" y="1324" width="408.4" height="10" fill="#a6d96a"/>
+<text x="20" y="1351">pgamma.csv</text><rect x="430" y="1339" width="70" height="16" fill="#a6d96a"/><text x="465" y="1351" text-anchor="middle">4.1e-03</text><rect x="510" y="1342" width="408.4" height="10" fill="#a6d96a"/>
+<text x="20" y="1369">qchisq.csv</text><rect x="430" y="1357" width="70" height="16" fill="#a6d96a"/><text x="465" y="1369" text-anchor="middle">5.9e-03</text><rect x="510" y="1360" width="413.1" height="10" fill="#a6d96a"/>
+<text x="20" y="1387">qgamma.csv</text><rect x="430" y="1375" width="70" height="16" fill="#a6d96a"/><text x="465" y="1387" text-anchor="middle">5.1e-03</text><rect x="510" y="1378" width="411.3" height="10" fill="#a6d96a"/>
+<text x="10" y="1405" font-weight="bold">scalar_pnorm</text>
+<text x="20" y="1423">pnorm.csv</text><rect x="430" y="1411" width="70" height="16" fill="#a6d96a"/><text x="465" y="1423" text-anchor="middle">4.6e-03</text><rect x="510" y="1414" width="409.8" height="10" fill="#a6d96a"/>
+<text x="20" y="1441">qnorm.csv</text><rect x="430" y="1429" width="70" height="16" fill="#a6d96a"/><text x="465" y="1441" text-anchor="middle">4.0e-03</text><rect x="510" y="1432" width="408.0" height="10" fill="#a6d96a"/>
+<text x="10" y="1459" font-weight="bold">scalar_qbeta</text>
+<text x="20" y="1477">qbeta.csv</text><rect x="430" y="1465" width="70" height="16" fill="#a6d96a"/><text x="465" y="1477" text-anchor="middle">1.6e-02</text><rect x="510" y="1468" width="426.2" height="10" fill="#a6d96a"/>
+<text x="10" y="1495" font-weight="bold">scalar_t</text>
+<text x="20" y="1513">pt.csv</text><rect x="430" y="1501" width="70" height="16" fill="#a6d96a"/><text x="465" y="1513" text-anchor="middle">5.2e-03</text><rect x="510" y="1504" width="411.5" height="10" fill="#a6d96a"/>
+<text x="20" y="1531">qt.csv</text><rect x="430" y="1519" width="70" height="16" fill="#a6d96a"/><text x="465" y="1531" text-anchor="middle">5.0e-03</text><rect x="510" y="1522" width="411.1" height="10" fill="#a6d96a"/>
+</svg>

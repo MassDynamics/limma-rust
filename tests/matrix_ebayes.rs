@@ -3,7 +3,7 @@
 //! 1e-8, p rel 1e-8 with a 1e-12 floor, lods rel 1e-8, df/s2 prior rel 1e-6, logFC and CI abs
 //! 1e-10, decideTests exact. The topTable goldens were written with `sort.by = "none"`, so
 //! rows are matched by gene name rather than by position. The block goldens' downstream files
-//! (`tests/golden/block/<case>/`) are held to the same bar.
+//! (`tests-validation/expected/block/<case>/`) are held to the same bar.
 
 mod common;
 
@@ -260,7 +260,7 @@ fn ebayes_matches_golden() {
     }
 }
 
-/// The block cases in `tests/golden/block/` (see `block_goldens.R` there): genes with no
+/// The block cases in `tests-validation/expected/block/` (see `tests-validation/scripts/block_goldens.R`): genes with no
 /// observation dropped, `lmFit(block = , correlation = )` at R's consensus correlation, then
 /// the same contrasts / eBayes / topTable checks.
 fn load_block_case(dir: &std::path::Path) -> (Matrix, MArrayLm) {
@@ -283,7 +283,8 @@ fn load_block_case(dir: &std::path::Path) -> (Matrix, MArrayLm) {
     let design = Matrix::read(dir, "design.csv");
     let contrasts = Matrix::read(dir, "contrasts.csv");
     let correlation = Matrix::read(dir, "dupcor_scalars.csv").get(0, 0);
-    let mut reader = csv::Reader::from_path(dir.join("block.csv")).expect("block.csv");
+    let mut reader =
+        csv::Reader::from_path(common::case_file(dir, "block.csv")).expect("block.csv");
     let labels: Vec<String> = reader
         .records()
         .map(|r| r.expect("block.csv record")[1].to_owned())
@@ -317,9 +318,7 @@ fn block_ebayes_matches_golden() {
         "bojkova_pairs",
         "techrep_mixed",
     ] {
-        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("tests/golden/block")
-            .join(case);
+        let dir = common::block_dir(case);
         let (exprs, cfit) = load_block_case(&dir);
         let mut report = Report::new(&format!("{case}/contrasts"));
         for (what, got, file) in [
